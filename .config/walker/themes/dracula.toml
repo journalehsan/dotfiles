@@ -1,0 +1,72 @@
+# Dracula theme for walker with rounded corners
+
+[theme]
+style = "dracula.css"
+red = "#ff5555"
+orange = "#ffb86c"
+yellow = "#f1fa8c"
+green = "#50fa7b"
+purple = "#bd93f9"
+cyan = "#8be9fd"
+pink = "#ff79c6"
+
+[style]
+radius = 16
+padding = 12
+width = "50%"
+height = "50%"
+border_width = 2
+border_color = "#bd93f9"
+input_padding = 12
+rounded = true
+opacity = 60
+
+[input]
+background = "#44475a"
+foreground = "#f8f8f2"
+placeholder = "#6272a4"
+rounded = true
+opacity = 0.95
+border_color = "#6272a4"
+border_width = 1
+radius = 13
+padding = 40
+
+[list]
+background = "#282a36"
+foreground = "#f8f8f2"
+selected_background = "#44475a"
+selected_foreground = "#f8f8f2"
+alternate_background = "#21222c"
+rounded = true
+opacity = 0.95
+border_color = "#6272a4"
+border_width = 1
+radius = 8
+padding = 8
+
+[icons]
+color = "#bd93f9"
+size = 16
+padding = 0
+
+[scrollbar]
+background = "#44475a"
+foreground = "#6272a4"
+rounded = true
+opacity = 0.95
+width = 4
+radius = 2
+
+[preview]
+background = "#282a36"
+rounded = true
+opacity = 0.50
+border_color = "#6272a4"
+border_width = 1
+radius = 8
+padding = 8
+
+
+
+

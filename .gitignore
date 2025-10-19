@@ -1,0 +1,11 @@
+# Ignore nested .git directories
+**/.git/
+**/.git
+
+# Common temporary files
+*~
+.DS_Store
+*.swp
+*.swo
+.temp/
+.tmp/

@@ -1,0 +1,175 @@
+/* Modern Dracula theme for walker (GTK 4) - Ultra Compact */
+
+window {
+    background-color: rgba(40, 42, 54, 0.95);
+    background-image: none;
+    border-radius: 16px;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(189, 147, 249, 0.2);
+    margin: 12px;
+}
+
+/* Main container */
+box {
+    background: transparent;
+    border: none;
+    padding: 12px;
+}
+
+/* Search entry */
+entry {
+    background: transparent;
+    color: #f8f8f2;
+    border: 1px solid rgba(189, 147, 249, 0.3);
+    border-radius: 12px;
+    padding: 8px 16px;
+    margin: 8px 0;
+    font-size: 14px;
+    box-shadow: 
+        0 2px 12px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 20px;
+}
+
+entry:focus {
+    border-color: #bd93f9;
+    box-shadow: 
+        0 0 0 2px rgba(189, 147, 249, 0.15),
+        0 4px 16px rgba(189, 147, 249, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    background: rgba(68, 71, 90, 0.9);
+}
+
+/* List box */
+list {
+    background: transparent;
+    border-radius: 12px;
+    border: 1px solid rgba(189, 147, 249, 0.2);
+    margin-top: 8px;
+    padding: 4px;
+    box-shadow: 
+        inset 0 1px 4px rgba(0, 0, 0, 0.1),
+        0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* List items - SIGNIFICANTLY REDUCED HEIGHT */
+row {
+    background: transparent;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    margin: 1px 0;
+    padding: 4px 1px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 18px; /* Reduced from 36px to 24px */
+    max-height: 19px;
+}
+
+row:hover {
+    background: rgba(189, 147, 249, 0.1);
+    border-color: rgba(189, 147, 249, 0.2);
+    transform: translateX(2px);
+}
+
+row:selected {
+    background: rgba(189, 147, 249, 0.15);
+    border-color: #bd93f9;
+    box-shadow: 
+        0 2px 8px rgba(189, 147, 249, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform: translateX(4px);
+}
+
+/* Labels - smaller font */
+label {
+    color: #f8f8f2;
+    font-family: sans-serif;
+    font-size: 12px; /* Reduced from 13px */
+    padding: 0;
+    margin: 0;
+}
+
+row:selected label {
+    color: #f8f8f2;
+    font-weight: 600;
+}
+
+/* Icons - smaller */
+image {
+    color: #bd93f9;
+    -gtk-icon-shadow: 0 1px 3px rgba(189, 147, 249, 0.3);
+    margin-right: 38px;
+    -gtk-icon-size: 32px; /* Reduced from 16px */
+}
+
+/* Even more compact for list item contents */
+row box {
+    padding: 0;
+    margin: 0;
+    spacing: 3px; /* Reduced spacing between icon and label */
+}
+
+/* Scrollbar - thinner */
+scrollbar {
+    background: rgba(189, 147, 249, 0.1);
+    border: none;
+    margin: 2px;
+}
+
+scrollbar slider {
+    background: rgba(189, 147, 249, 0.6);
+    border-radius: 6px;
+    border: none;
+    min-width: 4px; /* Thinner scrollbar */
+}
+
+/* Preview section - more compact */
+.frame {
+    background: rgba(40, 42, 54, 0.8);
+    border: 1px solid #6272a4;
+    border-radius: 2px;
+    margin-top: 2px;
+    padding: 2px;
+    box-shadow: 
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Keep the pulse animation but make it subtler */
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 
+            0 2px 8px rgba(189, 147, 249, 0.25),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+    50% {
+        box-shadow: 
+            0 2px 12px rgba(189, 147, 249, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+}
+
+row:selected {
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Alternate row coloring */
+row:nth-child(even) {
+    background: rgba(33, 34, 44, 0.4);
+}
+
+row:nth-child(even):hover {
+    background: rgba(189, 147, 249, 0.15);
+}
+
+
+
+
+
+
+
+
+
+

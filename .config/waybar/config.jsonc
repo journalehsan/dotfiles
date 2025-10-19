@@ -1,0 +1,223 @@
+{
+  "reload_style_on_change": true,
+  "layer": "top",
+  "position": "top",
+  "spacing": 4,
+  "height": 28,
+  "margin-top": 0,
+  "margin-left": 0,
+  "margin-right": 0,
+  "margin-bottom": 0,
+  "modules-left": ["group/left-iceland"],
+  "modules-center": ["group/center-iceland"],
+  "modules-right": ["group/right-iceland"],
+  // Left Iceland Group
+  "group/left-iceland": {
+    "orientation": "horizontal",
+    "modules": ["custom/omarchy", "custom/separator", "hyprland/workspaces"]
+  },
+
+  // Center Iceland Group  
+  "group/center-iceland": {
+    "orientation": "horizontal",
+    "modules": ["clock"]
+  },
+
+  // Right Iceland Group
+  "group/right-iceland": {
+    "orientation": "horizontal",
+    "modules": [
+      "custom/network-speed",
+      "cpu", 
+      "memory",
+      "custom/separator-2",
+      "group/tray-expander",
+      "bluetooth",
+      "network",
+      "pulseaudio",
+      "battery"
+    ]
+  },
+
+  "hyprland/workspaces": {
+    "on-click": "activate",
+    "format": "{icon}",
+    "format-icons": {
+      "default": "󰧞",
+      "1": "󰎤",
+      "2": "󰎧",
+      "3": "󰎪",
+      "4": "󰎭",
+      "5": "󰎱",
+      "6": "󰎳",
+      "7": "󰎶",
+      "8": "󰎹",
+      "9": "󰎼",
+      "active": "󰮯"
+    },
+    "persistent-workspaces": {
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [],
+      "5": []
+    }
+  },
+  "custom/omarchy": {
+    "format": "<span font='omarchy'>\ue900</span> <span>󰣇</span>",
+    "on-click": "omarchy-menu",
+    "tooltip-format": "Omarchy Menu\n\nSuper + Alt + Space"
+  },
+
+  "custom/separator": {
+    "format": "󰇙",
+    "tooltip": false
+  },
+
+  "custom/separator-2": {
+    "format": "󰇙",
+    "tooltip": false
+  },
+  "custom/update": {
+    "format": "",
+    "exec": "omarchy-update-available",
+    "on-click": "omarchy-launch-floating-terminal-with-presentation omarchy-update",
+    "tooltip-format": "Omarchy update available",
+    "signal": 7,
+    "interval": 3600
+  },
+
+  "cpu": {
+    "interval": 3,
+    "format": "󰻠 {usage}%",
+    "tooltip-format": "CPU Usage: {usage}%\nLoad: {load}",
+    "on-click": "$TERMINAL -e btop",
+    "states": {
+      "warning": 70,
+      "critical": 90
+    }
+  },
+
+  "memory": {
+    "interval": 3,
+    "format": "󰍛 {percentage}%",
+    "tooltip-format": "Memory: {used:0.1f}G / {total:0.1f}G ({percentage}%)\nSwap: {swapUsed:0.1f}G / {swapTotal:0.1f}G",
+    "on-click": "$TERMINAL -e btop",
+    "states": {
+      "warning": 75,
+      "critical": 90
+    }
+  },
+
+  "custom/network-speed": {
+    "exec": "~/.config/waybar/scripts/network-speed.sh",
+    "return-type": "json",
+    "format": "{}",
+    "interval": 3,
+    "tooltip": true
+  },
+  "clock": {
+    "format": "󰥔 {:L%H:%M}",
+    "format-alt": "󰸗 {:L%A, %d %B %Y}",
+    "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+    "on-click": "gnome-calendar || kalendar || $TERMINAL -e cal",
+    "on-click-right": "omarchy-cmd-tzupdate",
+    "calendar": {
+      "mode": "month",
+      "mode-mon-col": 3,
+      "weeks-pos": "right",
+      "on-scroll": 1,
+      "format": {
+        "months": "<span color='#f8f8f2'><b>{}</b></span>",
+        "days": "<span color='#f8f8f2'><b>{}</b></span>",
+        "weeks": "<span color='#99c1f1'><b>W{}</b></span>",
+        "weekdays": "<span color='#ffcc02'><b>{}</b></span>",
+        "today": "<span color='#ff6c6b'><b><u>{}</u></b></span>"
+      }
+    }
+  },
+  "network": {
+    "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
+    "format": "{icon}",
+    "format-wifi": "{icon} {signalStrength}%",
+    "format-ethernet": "󰌘",
+    "format-disconnected": "󰌙",
+    "tooltip-format-wifi": "Network: {essid}\nSignal: {signalStrength}% ({frequency} GHz)\nIP: {ipaddr}\nGateway: {gwaddr}",
+    "tooltip-format-ethernet": "Ethernet Connected\nIP: {ipaddr}\nGateway: {gwaddr}",
+    "tooltip-format-disconnected": "Network Disconnected",
+    "interval": 3,
+    "spacing": 1,
+    "on-click": "omarchy-launch-wifi"
+  },
+  "battery": {
+    "format": "{icon} {capacity}%",
+    "format-discharging": "{icon} {capacity}%",
+    "format-charging": "{icon} {capacity}%",
+    "format-plugged": "󰚥 {capacity}%",
+    "format-icons": {
+      "charging": ["󰢜", "󰂆", "󰂇", "󰂈", "󰢝", "󰂉", "󰢞", "󰂊", "󰂋", "󰂅"],
+      "default": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂"]
+    },
+    "format-full": "󰁹 Full",
+    "tooltip-format-discharging": "Battery: {capacity}%\nPower: {power:>1.0f}W\nTime remaining: {time}",
+    "tooltip-format-charging": "Battery: {capacity}%\nPower: {power:>1.0f}W\nTime to full: {time}",
+    "tooltip-format-plugged": "Battery: {capacity}%\nPlugged in",
+    "interval": 10,
+    "on-click": "omarchy-menu power",
+    "states": {
+      "good": 95,
+      "warning": 30,
+      "critical": 15
+    }
+  },
+  "bluetooth": {
+    "format": "󰂯",
+    "format-disabled": "󰂲",
+    "format-connected": "󰂱 {num_connections}",
+    "format-connected-battery": "󰂱 {num_connections} {device_battery_percentage}%",
+    "tooltip-format": "Bluetooth: {status}\nDevices connected: {num_connections}",
+    "tooltip-format-connected": "Bluetooth: Connected\n{device_enumerate}",
+    "on-click": "blueberry"
+  },
+  "pulseaudio": {
+    "format": "{icon} {volume}%",
+    "format-muted": "󰖁 Muted",
+    "format-icons": {
+      "headphone": "󰋋",
+      "hands-free": "󱡏",
+      "headset": "󰋋",
+      "phone": "󰏲",
+      "portable": "󰏲",
+      "car": "󰄋",
+      "default": ["󰕿", "󰖀", "󰕾"]
+    },
+    "scroll-step": 5,
+    "on-click": "$TERMINAL --class=Wiremix -e wiremix",
+    "on-click-right": "pamixer -t",
+    "tooltip-format": "Volume: {volume}%\nSink: {desc}"
+  },
+  "group/tray-expander": {
+    "orientation": "inherit",
+    "drawer": {
+      "transition-duration": 600,
+      "children-class": "tray-group-item"
+    },
+    "modules": ["custom/expand-icon", "tray"]
+  },
+  "custom/expand-icon": {
+    "format": " ",
+    "tooltip": false
+  },
+  "custom/screenrecording-indicator": {
+    "on-click": "omarchy-cmd-screenrecord",
+    "exec": "$OMARCHY_PATH/default/waybar/indicators/screen-recording.sh",
+    "signal": 8,
+    "return-type": "json"
+  },
+  "tray": {
+    "icon-size": 12,
+    "spacing": 12
+  }
+}
+
+

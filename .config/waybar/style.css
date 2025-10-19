@@ -1,0 +1,329 @@
+/* Dracula Color Scheme */
+@define-color background rgba(40, 42, 54, 0.99);
+@define-color current_line #44475A;
+@define-color foreground #F8F8F2;
+@define-color comment #6272A4;
+@define-color cyan #8BE9FD;
+@define-color green #50FA7B;
+@define-color orange #FFB86C;
+@define-color pink #FF79C6;
+@define-color purple #BD93F9;
+@define-color red #FF5555;
+@define-color yellow #F1FA8C;
+@define-color blue #6272A4;
+
+/* Global Styles */
+* {
+  font-family: 'CaskaydiaMono Nerd Font';
+  font-size: 11px;
+  font-weight: 500;
+  border: none;
+  border-radius: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+}
+
+/* Main Waybar Window */
+window#waybar {
+  background: transparent;
+  border-radius: 16px;
+}
+
+/* Iceland Groups */
+.modules-left,
+.modules-center, 
+.modules-right {
+  background: linear-gradient(145deg, rgba(40, 42, 54, 0.95), rgba(68, 71, 90, 0.9));
+  border-radius: 16px;
+  margin: 4px;
+  padding: 6px 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(189, 147, 249, 0.2);
+}
+
+.modules-left {
+  background: linear-gradient(145deg, rgba(40, 42, 54, 0.95), rgba(40, 44, 54, 0.9));
+  box-shadow: 0 4px 12px rgba(139, 233, 253, 0.15), inset 0 1px 0 rgba(139, 233, 253, 0.1);
+  border: 1px solid rgba(139, 233, 253, 0.25);
+}
+
+.modules-center {
+  background: linear-gradient(145deg, rgba(40, 42, 54, 0.95), rgba(40, 42, 55, 0.9));
+  box-shadow: 0 4px 12px rgba(189, 147, 249, 0.2), inset 0 1px 0 rgba(189, 147, 249, 0.15);
+  border: 1px solid rgba(189, 147, 249, 0.3);
+}
+
+.modules-right {
+  background: linear-gradient(145deg, rgba(40, 42, 54, 0.95), rgba(40, 42, 54, 0.95));
+  box-shadow: 0 4px 12px rgba(255, 121, 198, 0.1), inset 0 1px 0 rgba(255, 121, 198, 0.1);
+  border: 1px solid rgba(255, 121, 198, 0.2);
+}
+
+/* Module Styling */
+#workspaces,
+#clock,
+#cpu,
+#memory,
+#battery,
+#network,
+#bluetooth,
+#pulseaudio,
+#tray,
+#custom-omarchy,
+#custom-network-speed,
+#custom-separator,
+#custom-separator-2,
+#custom-expand-icon,
+#custom-update,
+#custom-screenrecording-indicator {
+  color: @foreground;
+  padding: 4px 8px;
+  margin: 0 2px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+/* Omarchy Button */
+#custom-omarchy {
+  color: @cyan;
+  font-weight: bold;
+  padding: 4px 10px;
+  background: rgba(139, 233, 253, 0.1);
+  border: 1px solid rgba(139, 233, 253, 0.3);
+}
+
+#custom-omarchy:hover {
+  background: rgba(139, 233, 253, 0.2);
+  box-shadow: 0 2px 8px rgba(139, 233, 253, 0.3);
+}
+
+/* Separators */
+#custom-separator,
+#custom-separator-2 {
+  color: @purple;
+  opacity: 0.6;
+  font-size: 16px;
+  padding: 4px 6px;
+}
+
+/* Workspaces */
+#workspaces {
+  padding: 2px 4px;
+}
+
+#workspaces button {
+  padding: 2px 8px;
+  margin: 0 1px;
+  color: @comment;
+  background: transparent;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+#workspaces button.active {
+  color: @cyan;
+  background: rgba(139, 233, 253, 0.2);
+  box-shadow: 0 2px 6px rgba(139, 233, 253, 0.3);
+}
+
+#workspaces button:hover {
+  color: @foreground;
+  background: rgba(68, 71, 90, 0.5);
+}
+
+#workspaces button.empty {
+  opacity: 0.4;
+}
+
+/* Clock */
+#clock {
+  color: @purple;
+  font-weight: bold;
+  font-size: 12px;
+  padding: 6px 16px;
+  background: rgba(189, 147, 249, 0.1);
+  border: 1px solid rgba(189, 147, 249, 0.3);
+}
+
+#clock:hover {
+  background: rgba(189, 147, 249, 0.2);
+  box-shadow: 0 2px 8px rgba(189, 147, 249, 0.3);
+}
+
+/* System Monitors */
+#cpu {
+  color: @orange;
+}
+
+#cpu.warning {
+  color: @yellow;
+  background: rgba(241, 250, 140, 0.1);
+}
+
+#cpu.critical {
+  color: @red;
+  background: rgba(255, 85, 85, 0.2);
+  animation: pulse 2s infinite;
+}
+
+#memory {
+  color: @green;
+}
+
+#memory.warning {
+  color: @yellow;
+  background: rgba(241, 250, 140, 0.1);
+}
+
+#memory.critical {
+  color: @red;
+  background: rgba(255, 85, 85, 0.2);
+  animation: pulse 2s infinite;
+}
+
+#custom-network-speed {
+  color: @cyan;
+  font-size: 10px;
+}
+
+/* Network */
+#network {
+  color: @blue;
+}
+
+#network.disconnected {
+  color: @red;
+}
+
+/* Battery */
+#battery {
+  color: @green;
+}
+
+#battery.warning {
+  color: @yellow;
+  background: rgba(241, 250, 140, 0.1);
+}
+
+#battery.critical {
+  color: @red;
+  background: rgba(255, 85, 85, 0.2);
+  animation: pulse 2s infinite;
+}
+
+#battery.good {
+  color: @green;
+}
+
+/* Bluetooth */
+#bluetooth {
+  color: @blue;
+}
+
+#bluetooth.disabled {
+  color: @comment;
+  opacity: 0.5;
+}
+
+#bluetooth.connected {
+  color: @cyan;
+}
+
+/* Audio */
+#pulseaudio {
+  color: @pink;
+}
+
+#pulseaudio.muted {
+  color: @red;
+  background: rgba(255, 85, 85, 0.1);
+}
+
+/* Tray */
+#tray {
+  padding: 4px 8px;
+}
+
+#tray menu {
+  background: @background;
+  border: 1px solid @current_line;
+  border-radius: 8px;
+}
+
+.tray-group-item {
+  margin: 0 2px;
+}
+
+#custom-expand-icon {
+  color: @comment;
+  font-size: 10px;
+}
+
+/* Custom Modules */
+#custom-update {
+  color: @orange;
+  font-size: 10px;
+  animation: fade 3s ease-in-out infinite alternate;
+}
+
+#custom-screenrecording-indicator {
+  color: @comment;
+  font-size: 10px;
+}
+
+#custom-screenrecording-indicator.active {
+  color: @red;
+  animation: pulse 2s infinite;
+}
+
+/* Animations */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 85, 85, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 85, 85, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 85, 85, 0);
+  }
+}
+
+@keyframes fade {
+  0% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Tooltips */
+tooltip {
+  background: rgba(40, 42, 54, 0.95);
+  border: 1px solid rgba(189, 147, 249, 0.3);
+  border-radius: 8px;
+  color: @foreground;
+  padding: 8px 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+tooltip label {
+  color: @foreground;
+}
+
+/* Hover Effects */
+#cpu:hover,
+#memory:hover,
+#battery:hover,
+#network:hover,
+#bluetooth:hover,
+#pulseaudio:hover,
+#custom-network-speed:hover {
+  background: rgba(68, 71, 90, 0.3);
+  box-shadow: 0 2px 6px rgba(189, 147, 249, 0.2);
+}
+
+
+
