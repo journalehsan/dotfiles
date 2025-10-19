@@ -86,6 +86,7 @@ if status is-interactive
 end
 alias yay="paru"
 alias nautilus="cosmic-files"
+alias musage="~/.local/bin/ram_monitor"
 # GTK theme setting
 gsettings set org.gnome.desktop.interface gtk-theme 'Dracula'
 
