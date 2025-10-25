@@ -90,7 +90,7 @@
     "interval": 3,
     "format": "󰻠 {usage}%",
     "tooltip-format": "CPU Usage: {usage}%\nLoad: {load}",
-    "on-click": "$TERMINAL -e btop",
+    "on-click": "$TERMINAL -e btop || $TERMINAL -e htop",
     "states": {
       "warning": 70,
       "critical": 90
@@ -101,7 +101,7 @@
     "interval": 3,
     "format": "󰍛 {percentage}%",
     "tooltip-format": "Memory: {used:0.1f}G / {total:0.1f}G ({percentage}%)\nSwap: {swapUsed:0.1f}G / {swapTotal:0.1f}G",
-    "on-click": "$TERMINAL -e btop",
+    "on-click": "$TERMINAL -e btop || $TERMINAL -e htop",
     "states": {
       "warning": 75,
       "critical": 90
@@ -119,7 +119,7 @@
     "format": "󰥔 {:L%H:%M}",
     "format-alt": "󰸗 {:L%A, %d %B %Y}",
     "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-    "on-click": "gnome-calendar || kalendar || $TERMINAL -e cal",
+    "on-click": "gnome-calendar || kalendar || $TERMINAL -e cal || $TERMINAL -e ncal",
     "on-click-right": "omarchy-cmd-tzupdate",
     "calendar": {
       "mode": "month",
@@ -191,7 +191,7 @@
       "default": ["󰕿", "󰖀", "󰕾"]
     },
     "scroll-step": 5,
-    "on-click": "$TERMINAL --class=Wiremix -e wiremix",
+    "on-click": "$TERMINAL -e wiremix",
     "on-click-right": "pamixer -t",
     "tooltip-format": "Volume: {volume}%\nSink: {desc}"
   },
