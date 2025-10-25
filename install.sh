@@ -2,6 +2,8 @@
 
 # Dotfiles installer script
 # This script sets up symbolic links for your dotfiles configuration
+# - Links config directories to ~/.config/
+# - Links scripts from ~/dotfiles/scripts to ~/.local/bin/
 
 set -e
 
@@ -17,6 +19,7 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo -e "${BLUE}=== Dotfiles Installation Script ===${NC}"
 echo -e "${BLUE}Dotfiles directory: ${DOTFILES_DIR}${NC}"
+echo
 
 # Function to create symbolic link
 create_symlink() {
@@ -36,6 +39,9 @@ create_symlink() {
     echo -e "${GREEN}Creating symlink: $target -> $source${NC}"
     ln -sf "$source" "$target"
 }
+
+# === STEP 1: Link Configuration Directories ===
+echo -e "${BLUE}[1/2] Linking configuration directories...${NC}"
 
 # Configuration directories to link
 configs=(
@@ -59,6 +65,49 @@ for config in "${configs[@]}"; do
     fi
 done
 
+echo
+
+# === STEP 2: Link Scripts to ~/.local/bin ===
+echo -e "${BLUE}[2/2] Linking scripts to ~/.local/bin...${NC}"
+
+# Create ~/.local/bin if it doesn't exist
+mkdir -p "$HOME/.local/bin"
+
+# Check if scripts directory exists
+if [[ -d "$DOTFILES_DIR/scripts" ]]; then
+    # Remove existing symbolic links in ~/.local/bin that point to dotfiles/scripts
+    echo -e "${YELLOW}Removing existing script links...${NC}"
+    for link in "$HOME/.local/bin"/*; do
+        if [[ -L "$link" ]] && [[ -n "$(readlink "$link" | grep '/dotfiles/scripts/')" ]]; then
+            rm "$link"
+            echo -e "${YELLOW}Removed: $(basename "$link")${NC}"
+        fi
+    done
+    
+    # Create symbolic links for each script
+    script_count=0
+    for script in "$DOTFILES_DIR/scripts"/*; do
+        if [[ -f "$script" || -L "$script" ]]; then
+            script_name=$(basename "$script")
+            link_path="$HOME/.local/bin/$script_name"
+            
+            # Create the symbolic link
+            ln -sf "$script" "$link_path"
+            echo -e "${GREEN}Linked: $script_name${NC}"
+            ((script_count++))
+        fi
+    done
+    
+    if [[ $script_count -eq 0 ]]; then
+        echo -e "${YELLOW}No scripts found in $DOTFILES_DIR/scripts${NC}"
+    else
+        echo -e "${GREEN}Linked $script_count script(s)${NC}"
+    fi
+else
+    echo -e "${YELLOW}Warning: $DOTFILES_DIR/scripts does not exist, skipping script linking...${NC}"
+fi
+
+echo
 echo -e "${GREEN}=== Installation Complete! ===${NC}"
 echo -e "${BLUE}Your dotfiles are now linked. Any changes to your configs will be automatically tracked in the dotfiles repository.${NC}"
 echo -e "${BLUE}Don't forget to run 'git add . && git commit -m \"Update configs\" && git push' to sync your changes!${NC}"
