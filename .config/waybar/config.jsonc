@@ -146,7 +146,7 @@
     "tooltip-format-disconnected": "Network Disconnected",
     "interval": 3,
     "spacing": 1,
-    "on-click": "omarchy-launch-wifi"
+    "on-click": "omarchy-launch-wifi || $TERMINAL -e gazelle"
   },
   "battery": {
     "format": "{icon} {capacity}%",
