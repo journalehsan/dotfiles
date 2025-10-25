@@ -3,11 +3,10 @@
   "layer": "top",
   "position": "top",
   "spacing": 4,
-  "height": 28,
-  "margin-top": 0,
-  "margin-left": 0,
-  "margin-right": 0,
-  "margin-bottom": 0,
+  "height": 32,
+  "margin-top": 1,
+  "margin-left": 1,
+  "margin-right":1,
   "modules-left": ["group/left-iceland"],
   "modules-center": ["group/center-iceland"],
   "modules-right": ["group/right-iceland"],
@@ -219,5 +218,6 @@
     "spacing": 12
   }
 }
+
 
 

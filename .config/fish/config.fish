@@ -30,7 +30,7 @@ if status is-interactive
     # Set agnoster as the theme with customizations
     set -g theme_color_scheme terminal-dark
     set -g fish_prompt_pwd_dir_length 1
-    
+
     # Agnoster theme settings
     set -g agnoster_path_bg 314863
     set -g agnoster_git_bg 5f8787
@@ -39,23 +39,26 @@ if status is-interactive
     set -g theme_powerline_fonts yes
     set -g theme_nerd_fonts yes
     set -g theme_color_scheme dark
-    
+
     # Nice aliases with exa (modern ls replacement)
     alias ls='exa --icons --group-directories-first'
     alias ll='exa -lah --icons --group-directories-first'
     alias lt='exa --tree --icons --group-directories-first'
     alias la='exa -lah --icons --group-directories-first'
     alias l='exa -lh --icons --group-directories-first'
-    
+
     # System update aliases
     alias update-system='sudo torsocks pacman -Syyu'
     alias yays='torsocks yay'
-    
+
     # Git aliases
     alias g='git'
     alias gst='git status'
     alias gd='git diff'
     alias gco='git checkout'
+
+    # Warp with proxy
+    alias warp-proxy='~/.local/bin/warp-proxy'
 
     # Enable Vi mode
     fish_vi_key_bindings
@@ -84,6 +87,7 @@ if status is-interactive
     set -g fish_color_user brgreen
     set -g fish_color_valid_path --underline
 end
+
 alias yay="paru"
 alias nautilus="cosmic-files"
 alias musage="~/.local/bin/ram_monitor"
@@ -99,3 +103,42 @@ set -e QT_STYLE_OVERRIDE Darkly  # Remove system Kvantum override
 set -gx DROPBOX_CLIENT_ID "oni7s2m0zhzjqb1"
 set -gx DROPBOX_CLIENT_SECRET "r9oyjntvotwlp4x"
 set -gx DROPBOX_REDIRECT_URI "https://wof-softwares.github.io/Docura/oauth-redirect.html"
+
+# VPN Aliases
+alias vpn-start="cd /home/ehsator/Documents/VPN && ./start_all.sh"
+alias vpn-stop="cd /home/ehsator/Documents/VPN && ./stop_all.sh"
+alias vpn-check="cd /home/ehsator/Documents/VPN && ./check_all.sh"
+alias vpn-status="cd /home/ehsator/Documents/VPN && ./check_all.sh"
+
+# Individual service aliases
+alias ssh-tunnel="cd /home/ehsator/Documents/VPN && ./start_tunnel.sh"
+alias shadowsocks="cd /home/ehsator/Documents/VPN && ./start_shadowsocks.sh"
+
+# Proxy configuration for fish shell
+# Add these aliases to use proxy with various commands
+
+# Alias to run nvim with proxy
+alias nvim-proxy='~/.local/bin/with-proxy nvim'
+
+# Generic alias to run any command with proxy
+alias with-proxy='~/.local/bin/with-proxy'
+
+# Set proxy function that exports variables to current shell
+function set-proxy
+    set -gx ALL_PROXY socks5://127.0.0.1:1080
+    set -gx HTTP_PROXY http://127.0.0.1:1080
+    set -gx HTTPS_PROXY http://127.0.0.1:1080
+    set -gx http_proxy http://127.0.0.1:1080
+    set -gx https_proxy http://127.0.0.1:1080
+    echo "Proxy environment variables set for current shell session"
+end
+
+# Function to unset proxy variables
+function unset-proxy
+    set -e ALL_PROXY
+    set -e HTTP_PROXY
+    set -e HTTPS_PROXY
+    set -e http_proxy
+    set -e https_proxy
+    echo "Proxy environment variables unset"
+end
