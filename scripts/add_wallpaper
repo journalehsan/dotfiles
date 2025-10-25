@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Target directory for Omarchy Dracula theme
+TARGET_DIR="$HOME/.config/omarchy/themes/dracula/backgrounds"
+
+# Create target directory if it doesn't exist
+mkdir -p "$TARGET_DIR"
+
+# Get Bing's daily wallpaper metadata (JSON)
+JSON=$(curl -s "https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=en-US")
+
+# Extract image URL
+IMG_URL="https://www.bing.com$(echo "$JSON" | grep -oP '"url":"\K[^"]+')"
+
+# Extract image filename
+FILENAME=$(basename "$IMG_URL" | cut -d'&' -f1)
+
+# Download the image
+curl -s "$IMG_URL" -o "$TARGET_DIR/$FILENAME"
+
+echo "✅ Bing wallpaper saved to: $TARGET_DIR/$FILENAME"

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# This script runs nvim with SOCKS5 proxy settings
+# It's designed for situations where GitHub Copilot is blocked
+
+# Set your proxy details here - update these with your Shadowsocks server details
+PROXY_HOST="127.0.0.1"  # Replace with your proxy host (usually 127.0.0.1 if using local Shadowsocks client)
+PROXY_PORT="1080"       # Replace with your proxy port (check your Shadowsocks client config)
+
+# Set the proxy environment variables
+export ALL_PROXY=socks5://$PROXY_HOST:$PROXY_PORT
+export HTTP_PROXY=socks5://$PROXY_HOST:$PROXY_PORT
+export HTTPS_PROXY=socks5://$PROXY_HOST:$PROXY_PORT
+
+echo "Running nvim with proxy: socks5://$PROXY_HOST:$PROXY_PORT"
+
+# Run nvim with proxy settings
+exec nvim "$@"

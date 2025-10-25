@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# This script runs any command with SOCKS5 proxy settings
+# It's designed for situations where GitHub Copilot is blocked
+
+# Set your proxy details here - update these with your Shadowsocks server details
+PROXY_HOST="127.0.0.1"  # Replace with your proxy host (usually 127.0.0.1 if using local Shadowsocks client)
+PROXY_PORT="1080"       # Replace with your proxy port (check your Shadowsocks client config)
+
+# Check if we have at least one argument
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 <command> [args...]"
+    echo "Example: $0 nvim file.txt"
+    echo ""
+    echo "Before using this, make sure your Shadowsocks client is running and connected."
+    echo "Update the PROXY_HOST and PROXY_PORT variables in this script with your actual settings."
+    exit 1
+fi
+
+# Set the proxy environment variables
+export ALL_PROXY=socks5://$PROXY_HOST:$PROXY_PORT
+export HTTP_PROXY=socks5://$PROXY_HOST:$PROXY_PORT
+export HTTPS_PROXY=socks5://$PROXY_HOST:$PROXY_PORT
+
+# Run the command with proxy settings
+exec "$@"

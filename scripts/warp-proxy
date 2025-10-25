@@ -1,0 +1,4 @@
+#!/bin/bash
+# Launch Warp with SOCKS5 proxy on 127.0.0.1:1080
+
+exec torsocks /usr/bin/warp-terminal "$@"

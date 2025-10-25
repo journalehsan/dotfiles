@@ -10,6 +10,7 @@ Personal configuration files for my Arch Linux setup with Hyprland, managed thro
 - **Neovim** (`~/.config/nvim/`) - Text editor configuration
 - **Walker** (`~/.config/walker/`) - Application launcher
 - **Omarchy** (`~/.config/omarchy/`) - Custom configuration
+- **Custom Scripts** (`~/dotfiles/scripts/`) - Shell and Python scripts linked to `~/.local/bin/`
 
 ## Installation
 
@@ -79,6 +80,43 @@ dotfiles/
 ├── install.sh
 └── README.md
 ```
+
+## Custom Scripts
+
+Custom executable scripts are stored in `~/dotfiles/scripts/` and symbolically linked to `~/.local/bin/` for easy access in your PATH.
+
+### Available Scripts
+
+The `scripts/` directory contains:
+
+- `add_wallpaper` - Shell script for adding wallpapers
+- `amp` - Shell script
+- `disk_cleanup.sh` - Comprehensive disk cleanup script for Arch Linux
+- `env` - POSIX shell script
+- `env.fish` - Fish shell script
+- `nvim-proxy` - Neovim proxy script
+- `ram_monitor` - Python script to monitor RAM usage
+- `warp-proxy` - Warp terminal proxy script
+- `with-proxy` - Proxy wrapper script
+
+### Restoration
+
+To restore the symbolic links on a new system, run:
+
+```bash
+~/dotfiles/restore_local_bin.sh
+```
+
+This will create symbolic links from each script in `~/dotfiles/scripts/` to `~/.local/bin/`.
+
+### Adding New Scripts
+
+To add a new script to the system:
+1. Place your script in the `~/dotfiles/scripts/` directory
+2. Run `~/dotfiles/restore_local_bin.sh` to create the symbolic link
+3. The script will become accessible from your PATH
+
+Note: Only shell scripts and Python scripts should be added to version control. Binary executables (like `uv`, `uvx`) should be installed separately.
 
 ## License
 

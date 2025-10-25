@@ -1,0 +1,417 @@
+#!/usr/bin/env python3
+"""
+ENHANCED RAM Monitor - Advanced memory analysis and monitoring
+"""
+
+import re
+import subprocess
+import sys
+import platform
+import time
+import json
+import argparse
+from typing import Dict, List, Optional, Tuple
+from dataclasses import dataclass
+from datetime import datetime
+
+@dataclass
+class ProcessInfo:
+    """Enhanced process information structure"""
+    pid: int
+    name: str
+    full_command: str
+    user: str
+    ram_mb: float
+    ram_percent: float
+    cpu_percent: float
+    vsz_mb: float
+    rss_mb: float
+    status: str
+    start_time: str
+    runtime: str
+    
+    @property
+    def ram_human(self) -> str:
+        """Human readable RAM usage"""
+        if self.ram_mb < 1024:
+            return f"{self.ram_mb:.1f} MB"
+        else:
+            return f"{self.ram_mb/1024:.1f} GB"
+    
+    @property
+    def efficiency_score(self) -> float:
+        """Calculate memory efficiency score (0-100)"""
+        # Lower memory usage = higher efficiency
+        if self.ram_mb <= 50:
+            return 100
+        elif self.ram_mb <= 100:
+            return 90
+        elif self.ram_mb <= 200:
+            return 80
+        elif self.ram_mb <= 500:
+            return 70
+        elif self.ram_mb <= 1000:
+            return 60
+        else:
+            return max(10, 100 - (self.ram_mb / 100))
+
+class EnhancedRAMMonitor:
+    def __init__(self):
+        self.system = platform.system().lower()
+        self.total_ram_mb = self._get_linux_total_ram()
+        
+    def get_all_processes(self, filter_patterns: Optional[List[str]] = None) -> List[ProcessInfo]:
+        """Get all processes with enhanced information"""
+        if self.system != "linux":
+            return []
+            
+        try:
+            result = subprocess.run(
+                ["ps", "aux"], 
+                capture_output=True, 
+                text=True
+            )
+            
+            processes = []
+            lines = result.stdout.split('\n')
+            for i, line in enumerate(lines):
+                if not line.strip():
+                    continue
+                # Skip the header line
+                if i == 0 and 'USER' in line and 'PID' in line:
+                    continue
+                
+                process_info = self._parse_process_line(line)
+                if process_info and (not filter_patterns or self._matches_patterns(process_info, filter_patterns)):
+                    processes.append(process_info)
+            
+            return processes
+            
+        except Exception as e:
+            print(f"Error getting processes: {e}")
+            return []
+    
+    def _parse_process_line(self, line: str) -> Optional[ProcessInfo]:
+        """Parse a single ps aux line into ProcessInfo"""
+        parts = line.split()
+        if len(parts) < 11:
+            return None
+            
+        try:
+            user, pid, cpu_percent, mem_percent, vsz, rss, tt, stat, start, time, *command_parts = parts
+            command = ' '.join(command_parts)
+            if not command:
+                return None
+                
+            process_name = command.split('/')[-1] if '/' in command else command
+            process_name = process_name.split()[0] if process_name.split() else command
+            
+            # Calculate actual RAM from percentage
+            ram_mb = (float(mem_percent) / 100) * self.total_ram_mb
+            
+            return ProcessInfo(
+                pid=int(pid),
+                name=process_name,
+                full_command=command,
+                user=user,
+                ram_mb=ram_mb,
+                ram_percent=float(mem_percent),
+                cpu_percent=float(cpu_percent),
+                vsz_mb=float(vsz) / 1024,  # Convert KB to MB
+                rss_mb=float(rss) / 1024,  # Convert KB to MB
+                status=stat,
+                start_time=start,
+                runtime=time
+            )
+        except (ValueError, IndexError):
+            return None
+    
+    def _matches_patterns(self, process: ProcessInfo, patterns: List[str]) -> bool:
+        """Check if process matches any of the given patterns"""
+        for pattern in patterns:
+            if (pattern.lower() in process.name.lower() or 
+                pattern.lower() in process.full_command.lower()):
+                return True
+        return False
+    
+    def get_accurate_ram_usage(self, exact_process_names: List[str]) -> Dict[str, Dict]:
+        """More accurate RAM monitoring focusing on exact process names"""
+        if self.system == "linux":
+            return self._get_accurate_linux_ram(exact_process_names)
+        else:
+            # Fallback to original method for other OS
+            monitor = RAMMonitor()
+            return monitor.get_process_ram_usage(exact_process_names)
+    
+    def _get_accurate_linux_ram(self, process_names: List[str]) -> Dict[str, Dict]:
+        """Linux-specific accurate RAM monitoring"""
+        try:
+            # Use ps with more precise columns
+            result = subprocess.run(
+                ["ps", "aux"], 
+                capture_output=True, 
+                text=True
+            )
+            
+            processes = {}
+            lines = result.stdout.split('\n')
+            for i, line in enumerate(lines):
+                if not line.strip():
+                    continue
+                # Skip the header line
+                if i == 0 and 'USER' in line and 'PID' in line:
+                    continue
+                
+                # Split by whitespace, but be careful with spaces in commands
+                parts = line.split()
+                if len(parts) < 11:
+                    continue
+                    
+                # ps aux format: USER PID %CPU %MEM VSZ RSS TT STAT START TIME COMMAND
+                try:
+                    user, pid, cpu_percent, mem_percent, vsz, rss, tt, stat, start, time, *command_parts = parts
+                except ValueError as e:
+                    # Skip lines that don't match expected format
+                    continue
+                command = ' '.join(command_parts)
+                if not command:
+                    continue
+                process_name = command.split('/')[-1] if '/' in command else command
+                process_name = process_name.split()[0] if process_name.split() else command
+                
+                for target_name in process_names:
+                    # Exact match or process contains target name
+                    if (target_name.lower() in process_name.lower() or 
+                        target_name.lower() in command.lower()):
+                        
+                        # Get total RAM to calculate actual MB from percentage
+                        total_ram_mb = self._get_linux_total_ram()
+                        ram_mb = (float(mem_percent) / 100) * total_ram_mb
+                        
+                        key = f"{process_name}_{pid}"
+                        processes[key] = {
+                            'name': process_name[:25],
+                            'full_command': command[:40] + "..." if len(command) > 40 else command,
+                            'pid': int(pid),
+                            'ram_mb': ram_mb,
+                            'ram_human': f"{ram_mb:.1f} MB",
+                            'mem_percent': f"{mem_percent}%"
+                        }
+            
+            return processes
+            
+        except Exception as e:
+            print(f"Accurate Linux RAM check error: {e}")
+            return {}
+    
+    def _get_linux_total_ram(self) -> float:
+        """Get total RAM in MB on Linux"""
+        try:
+            with open('/proc/meminfo', 'r') as f:
+                for line in f:
+                    if line.startswith('MemTotal:'):
+                        kb = int(line.split()[1])
+                        return kb / 1024  # Convert KB to MB
+        except:
+            pass
+        return 8192  # Fallback: assume 8GB
+    
+    def analyze_memory_trends(self, processes: List[ProcessInfo]) -> Dict:
+        """Analyze memory usage trends and patterns"""
+        if not processes:
+            return {}
+        
+        total_ram = sum(p.ram_mb for p in processes)
+        avg_ram = total_ram / len(processes)
+        
+        # Group by process name
+        by_name = {}
+        for p in processes:
+            if p.name not in by_name:
+                by_name[p.name] = []
+            by_name[p.name].append(p)
+        
+        # Find top memory consumers
+        top_consumers = sorted(processes, key=lambda x: x.ram_mb, reverse=True)[:10]
+        
+        # Memory efficiency analysis
+        efficient_processes = [p for p in processes if p.efficiency_score > 80]
+        inefficient_processes = [p for p in processes if p.efficiency_score < 50]
+        
+        return {
+            'total_processes': len(processes),
+            'total_memory_mb': total_ram,
+            'average_memory_mb': avg_ram,
+            'top_consumers': top_consumers,
+            'efficient_processes': efficient_processes,
+            'inefficient_processes': inefficient_processes,
+            'memory_by_name': {name: sum(p.ram_mb for p in procs) for name, procs in by_name.items()}
+        }
+    
+    def generate_report(self, processes: List[ProcessInfo], analysis: Dict) -> str:
+        """Generate a comprehensive memory report"""
+        report = []
+        report.append("🔍 ENHANCED MEMORY ANALYSIS REPORT")
+        report.append("=" * 60)
+        report.append(f"📊 Total Processes: {analysis['total_processes']}")
+        report.append(f"💾 Total Memory Used: {analysis['total_memory_mb']:.1f} MB")
+        report.append(f"📈 Average Memory per Process: {analysis['average_memory_mb']:.1f} MB")
+        report.append("")
+        
+        # Top consumers
+        report.append("🔥 TOP MEMORY CONSUMERS:")
+        report.append("-" * 60)
+        for i, process in enumerate(analysis['top_consumers'][:5], 1):
+            report.append(f"{i}. {process.name:20} | {process.ram_human:>10} | {process.ram_percent:>6.2f}% | Score: {process.efficiency_score:.0f}")
+        
+        # Efficiency analysis
+        report.append("\n✅ MOST EFFICIENT PROCESSES:")
+        report.append("-" * 60)
+        for process in analysis['efficient_processes'][:5]:
+            report.append(f"🎯 {process.name:20} | {process.ram_human:>10} | Score: {process.efficiency_score:.0f}")
+        
+        if analysis['inefficient_processes']:
+            report.append("\n⚠️  MEMORY-INTENSIVE PROCESSES:")
+            report.append("-" * 60)
+            for process in analysis['inefficient_processes'][:5]:
+                report.append(f"🔴 {process.name:20} | {process.ram_human:>10} | Score: {process.efficiency_score:.0f}")
+        
+        return "\n".join(report)
+
+def detailed_analysis():
+    """Run detailed analysis with enhanced features"""
+    monitor = EnhancedRAMMonitor()
+    
+    # Look for common applications
+    target_processes = ["docurator", "typora", "code", "atom", "zed", "firefox", "chrome", "python"]
+    
+    print("🔍 ENHANCED MEMORY ANALYSIS")
+    print("=" * 60)
+    
+    processes = monitor.get_all_processes(target_processes)
+    
+    if not processes:
+        print("❌ No relevant processes found. Try running:")
+        print("   python ram_monitor.py docurator")
+        return
+    
+    # Perform analysis
+    analysis = monitor.analyze_memory_trends(processes)
+    
+    # Generate and display report
+    report = monitor.generate_report(processes, analysis)
+    print(report)
+    
+    # Specific analysis for editors
+    editors = [p for p in processes if any(editor in p.name.lower() for editor in ['code', 'docurator', 'typora', 'atom', 'zed'])]
+    if editors:
+        print("\n💡 EDITOR COMPARISON:")
+        print("-" * 60)
+        for editor in sorted(editors, key=lambda x: x.ram_mb):
+            print(f"📝 {editor.name:15} | {editor.ram_human:>10} | Efficiency: {editor.efficiency_score:.0f}/100")
+        
+        best_editor = min(editors, key=lambda x: x.ram_mb)
+        print(f"\n🏆 Most Efficient Editor: {best_editor.name} ({best_editor.ram_human})")
+
+def monitor_continuous(duration: int = 60, interval: int = 5):
+    """Continuously monitor memory usage"""
+    monitor = EnhancedRAMMonitor()
+    print(f"🔄 Starting continuous monitoring for {duration} seconds (interval: {interval}s)")
+    print("Press Ctrl+C to stop")
+    
+    try:
+        start_time = time.time()
+        while time.time() - start_time < duration:
+            processes = monitor.get_all_processes()
+            if processes:
+                analysis = monitor.analyze_memory_trends(processes)
+                print(f"\n[{datetime.now().strftime('%H:%M:%S')}] Total: {analysis['total_memory_mb']:.1f} MB | Processes: {analysis['total_processes']}")
+                
+                # Show top 3 consumers
+                for i, proc in enumerate(analysis['top_consumers'][:3], 1):
+                    print(f"  {i}. {proc.name}: {proc.ram_human}")
+            
+            time.sleep(interval)
+    except KeyboardInterrupt:
+        print("\n🛑 Monitoring stopped by user")
+
+def main():
+    """Enhanced main function with command-line options"""
+    parser = argparse.ArgumentParser(description='Enhanced RAM Monitor - Advanced memory analysis')
+    parser.add_argument('processes', nargs='*', default=["python", "code", "firefox", "chrome"],
+                       help='Process names to monitor (default: python, code, firefox, chrome)')
+    parser.add_argument('--analyze', '-a', action='store_true',
+                       help='Run detailed analysis mode')
+    parser.add_argument('--monitor', '-m', type=int, metavar='SECONDS',
+                       help='Continuous monitoring mode for specified seconds')
+    parser.add_argument('--interval', '-i', type=int, default=5,
+                       help='Monitoring interval in seconds (default: 5)')
+    parser.add_argument('--json', '-j', action='store_true',
+                       help='Output results in JSON format')
+    parser.add_argument('--sort', '-s', choices=['memory', 'name', 'efficiency'], default='memory',
+                       help='Sort results by memory, name, or efficiency (default: memory)')
+    parser.add_argument('--limit', '-l', type=int, default=20,
+                       help='Limit number of processes to display (default: 20)')
+    
+    args = parser.parse_args()
+    
+    monitor = EnhancedRAMMonitor()
+    
+    if args.analyze:
+        detailed_analysis()
+    elif args.monitor:
+        monitor_continuous(args.monitor, args.interval)
+    else:
+        # Basic monitoring mode
+        processes = monitor.get_all_processes(args.processes)
+        
+        if not processes:
+            print("❌ No matching processes found")
+            return
+        
+        # Sort processes
+        if args.sort == 'memory':
+            processes.sort(key=lambda x: x.ram_mb, reverse=True)
+        elif args.sort == 'name':
+            processes.sort(key=lambda x: x.name.lower())
+        elif args.sort == 'efficiency':
+            processes.sort(key=lambda x: x.efficiency_score, reverse=True)
+        
+        # Limit results
+        processes = processes[:args.limit]
+        
+        if args.json:
+            # JSON output
+            output = {
+                'timestamp': datetime.now().isoformat(),
+                'processes': [
+                    {
+                        'pid': p.pid,
+                        'name': p.name,
+                        'ram_mb': p.ram_mb,
+                        'ram_percent': p.ram_percent,
+                        'efficiency_score': p.efficiency_score,
+                        'user': p.user
+                    } for p in processes
+                ],
+                'total_memory_mb': sum(p.ram_mb for p in processes),
+                'total_processes': len(processes)
+            }
+            print(json.dumps(output, indent=2))
+        else:
+            # Human-readable output
+            print("🔍 ENHANCED RAM USAGE MONITOR")
+            print("=" * 60)
+            print(f"{'Process':<20} | {'Memory':<10} | {'%':<6} | {'Efficiency':<10} | {'PID':<8}")
+            print("-" * 60)
+            
+            total_used = 0
+            for process in processes:
+                print(f"{process.name:<20} | {process.ram_human:<10} | {process.ram_percent:<6.2f} | {process.efficiency_score:<10.0f} | {process.pid:<8}")
+                total_used += process.ram_mb
+            
+            print("-" * 60)
+            print(f"📈 TOTAL: {total_used:.1f} MB ({len(processes)} processes)")
+
+if __name__ == "__main__":
+    main()
