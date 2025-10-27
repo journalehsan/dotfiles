@@ -162,7 +162,7 @@
     "tooltip-format-charging": "Battery: {capacity}%\nPower: {power:>1.0f}W\nTime to full: {time}",
     "tooltip-format-plugged": "Battery: {capacity}%\nPlugged in",
     "interval": 10,
-    "on-click": "omarchy-menu power",
+    "on-click": "alacritty -e power-profile-menu",
     "states": {
       "good": 95,
       "warning": 30,

@@ -51,6 +51,12 @@ configs=(
     "fish"
     "nvim"
     "walker"
+    "gtk-3.0"
+    "gtk-4.0"
+    "fontconfig"
+    "qt5ct"
+    "qt6ct"
+    "QtProject"
 )
 
 # Create symbolic links for each config
@@ -59,6 +65,22 @@ for config in "${configs[@]}"; do
     target_path="$HOME/.config/$config"
     
     if [[ -d "$source_path" ]]; then
+        create_symlink "$source_path" "$target_path"
+    else
+        echo -e "${RED}Warning: $source_path does not exist, skipping...${NC}"
+    fi
+done
+
+# Link individual config files
+config_files=(
+    "QtProject.conf"
+)
+
+for config_file in "${config_files[@]}"; do
+    source_path="$DOTFILES_DIR/.config/$config_file"
+    target_path="$HOME/.config/$config_file"
+    
+    if [[ -f "$source_path" ]]; then
         create_symlink "$source_path" "$target_path"
     else
         echo -e "${RED}Warning: $source_path does not exist, skipping...${NC}"

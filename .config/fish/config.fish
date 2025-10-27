@@ -142,3 +142,16 @@ function unset-proxy
     set -e https_proxy
     echo "Proxy environment variables unset"
 end
+
+# Rust path switcher - prefer rustup over system rust
+function change_rust_path
+    set -gx PATH $HOME/.cargo/bin $PATH
+    echo "✓ Switched to rustup Rust (home)"
+    echo "  rustc: "(which rustc)
+    echo "  cargo: "(which cargo)
+    rustc --version
+end
+
+# Optionally set as default (uncomment to always use rustup)
+# set -gx PATH $HOME/.cargo/bin $PATH
+
