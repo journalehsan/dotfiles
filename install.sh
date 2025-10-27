@@ -41,7 +41,7 @@ create_symlink() {
 }
 
 # === STEP 1: Link Configuration Directories ===
-echo -e "${BLUE}[1/2] Linking configuration directories...${NC}"
+echo -e "${BLUE}[1/3] Linking configuration directories...${NC}"
 
 # Configuration directories to link
 configs=(
@@ -89,8 +89,35 @@ done
 
 echo
 
-# === STEP 2: Link Scripts to ~/.local/bin ===
-echo -e "${BLUE}[2/2] Linking scripts to ~/.local/bin...${NC}"
+# === STEP 2: Link Themes and Icons ===
+echo -e "${BLUE}[2/3] Linking themes and icons...${NC}"
+
+# Create ~/.themes directory if it doesn't exist
+mkdir -p "$HOME/.themes"
+
+# Link themes from dotfiles/.themes to ~/.themes
+if [[ -d "$DOTFILES_DIR/.themes" ]]; then
+    for theme_dir in "$DOTFILES_DIR/.themes"/*; do
+        if [[ -d "$theme_dir" ]]; then
+            theme_name=$(basename "$theme_dir")
+            create_symlink "$theme_dir" "$HOME/.themes/$theme_name"
+        fi
+    done
+fi
+
+# Create ~/.local/share directory if it doesn't exist
+mkdir -p "$HOME/.local/share"
+
+# Link icons directory
+icon_source="$DOTFILES_DIR/.local/share/icons"
+if [[ -d "$icon_source" ]]; then
+    create_symlink "$icon_source" "$HOME/.local/share/icons"
+fi
+
+echo
+
+# === STEP 3: Link Scripts to ~/.local/bin ===
+echo -e "${BLUE}[3/3] Linking scripts to ~/.local/bin...${NC}"
 
 # Create ~/.local/bin if it doesn't exist
 mkdir -p "$HOME/.local/bin"
