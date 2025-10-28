@@ -141,7 +141,9 @@
     "return-type": "json",
     "format": "{}",
     "interval": 60,
+    "signal": 25,
     "on-click": "xdg-open https://time.ir",
+    "on-click-right": "~/.config/waybar/scripts/jalali-toggle.sh",
     "tooltip": true
   },
 
