@@ -2,7 +2,9 @@
 
 # Dotfiles installer script
 # This script sets up symbolic links for your dotfiles configuration
-# - Links config directories to ~/.config/
+# - Links config directories to ~/.config/ (gtk, qt, fontconfig, etc.)
+# - Links themes to ~/.themes/
+# - Links icon themes to ~/.local/share/icons/
 # - Links scripts from ~/dotfiles/scripts to ~/.local/bin/
 
 set -e
@@ -97,12 +99,19 @@ mkdir -p "$HOME/.themes"
 
 # Link themes from dotfiles/.themes to ~/.themes
 if [[ -d "$DOTFILES_DIR/.themes" ]]; then
+    theme_count=0
     for theme_dir in "$DOTFILES_DIR/.themes"/*; do
         if [[ -d "$theme_dir" ]]; then
             theme_name=$(basename "$theme_dir")
             create_symlink "$theme_dir" "$HOME/.themes/$theme_name"
+            ((theme_count++))
         fi
     done
+    if [[ $theme_count -gt 0 ]]; then
+        echo -e "${GREEN}Linked $theme_count theme(s)${NC}"
+    fi
+else
+    echo -e "${YELLOW}No themes found to link${NC}"
 fi
 
 # Create ~/.local/share directory if it doesn't exist
@@ -112,6 +121,9 @@ mkdir -p "$HOME/.local/share"
 icon_source="$DOTFILES_DIR/.local/share/icons"
 if [[ -d "$icon_source" ]]; then
     create_symlink "$icon_source" "$HOME/.local/share/icons"
+    echo -e "${GREEN}Linked icon themes${NC}"
+else
+    echo -e "${YELLOW}No icons found to link${NC}"
 fi
 
 echo
@@ -158,5 +170,15 @@ fi
 
 echo
 echo -e "${GREEN}=== Installation Complete! ===${NC}"
-echo -e "${BLUE}Your dotfiles are now linked. Any changes to your configs will be automatically tracked in the dotfiles repository.${NC}"
-echo -e "${BLUE}Don't forget to run 'git add . && git commit -m \"Update configs\" && git push' to sync your changes!${NC}"
+echo
+echo -e "${BLUE}Summary:${NC}"
+echo -e "  ✓ Configuration directories linked to ~/.config/"
+echo -e "  ✓ Themes linked to ~/.themes/"
+echo -e "  ✓ Icon themes linked to ~/.local/share/icons/"
+echo -e "  ✓ Scripts linked to ~/.local/bin/"
+echo
+echo -e "${BLUE}Your dotfiles are now linked and will sync across devices!${NC}"
+echo -e "${YELLOW}Don't forget to run: ${NC}"
+echo -e "  ${GREEN}git add .${NC}"
+echo -e "  ${GREEN}git commit -m \"Update configs\"${NC}"
+echo -e "  ${GREEN}git push${NC}"

@@ -19,7 +19,7 @@
   // Center Iceland Group  
   "group/center-iceland": {
     "orientation": "horizontal",
-    "modules": ["clock"]
+    "modules": ["clock", "custom/jalali-calendar"]
   },
 
   // Right Iceland Group
@@ -135,6 +135,16 @@
       }
     }
   },
+
+  "custom/jalali-calendar": {
+    "exec": "~/.config/waybar/scripts/jalali-waybar.sh",
+    "return-type": "json",
+    "format": "{}",
+    "interval": 60,
+    "on-click": "xdg-open https://time.ir",
+    "tooltip": true
+  },
+
   "network": {
     "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
     "format": "{icon}",
