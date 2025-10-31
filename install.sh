@@ -53,6 +53,7 @@ configs=(
     "fish"
     "nvim"
     "walker"
+    "swayosd"
     "gtk-3.0"
     "gtk-4.0"
     "fontconfig"
