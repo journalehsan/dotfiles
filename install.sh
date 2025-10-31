@@ -54,6 +54,7 @@ configs=(
     "nvim"
     "walker"
     "swayosd"
+    "mako"
     "gtk-3.0"
     "gtk-4.0"
     "fontconfig"
