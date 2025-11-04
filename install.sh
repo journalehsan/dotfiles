@@ -106,7 +106,7 @@ if [[ -d "$DOTFILES_DIR/.themes" ]]; then
         if [[ -d "$theme_dir" ]]; then
             theme_name=$(basename "$theme_dir")
             create_symlink "$theme_dir" "$HOME/.themes/$theme_name"
-            ((theme_count++))
+            ((++theme_count))
         fi
     done
     if [[ $theme_count -gt 0 ]]; then
@@ -141,7 +141,7 @@ if [[ -d "$DOTFILES_DIR/scripts" ]]; then
     # Remove existing symbolic links in ~/.local/bin that point to dotfiles/scripts
     echo -e "${YELLOW}Removing existing script links...${NC}"
     for link in "$HOME/.local/bin"/*; do
-        if [[ -L "$link" ]] && [[ -n "$(readlink "$link" | grep '/dotfiles/scripts/')" ]]; then
+        if [[ -L "$link" ]] && readlink "$link" | grep -q '/dotfiles/scripts/'; then
             rm "$link"
             echo -e "${YELLOW}Removed: $(basename "$link")${NC}"
         fi
@@ -157,7 +157,7 @@ if [[ -d "$DOTFILES_DIR/scripts" ]]; then
             # Create the symbolic link
             ln -sf "$script" "$link_path"
             echo -e "${GREEN}Linked: $script_name${NC}"
-            ((script_count++))
+            ((++script_count))
         fi
     done
     

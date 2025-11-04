@@ -105,14 +105,14 @@ set -gx DROPBOX_CLIENT_SECRET "r9oyjntvotwlp4x"
 set -gx DROPBOX_REDIRECT_URI "https://wof-softwares.github.io/Docura/oauth-redirect.html"
 
 # VPN Aliases
-alias vpn-start="cd /home/ehsator/Documents/VPN && ./start_all.sh"
-alias vpn-stop="cd /home/ehsator/Documents/VPN && ./stop_all.sh"
-alias vpn-check="cd /home/ehsator/Documents/VPN && ./check_all.sh"
-alias vpn-status="cd /home/ehsator/Documents/VPN && ./check_all.sh"
+alias vpn-start="cd /home/ehsantork/Documents/VPN && ./start_all.sh"
+alias vpn-stop="cd /home/ehsantork/Documents/VPN && ./stop_all.sh"
+alias vpn-check="cd /home/ehsantork/Documents/VPN && ./check_all.sh"
+alias vpn-status="cd /home/ehsantork/Documents/VPN && ./check_all.sh"
 
 # Individual service aliases
-alias ssh-tunnel="cd /home/ehsator/Documents/VPN && ./start_tunnel.sh"
-alias shadowsocks="cd /home/ehsator/Documents/VPN && ./start_shadowsocks.sh"
+alias ssh-tunnel="cd /home/ehsantork/Documents/VPN && ./start_tunnel.sh"
+alias shadowsocks="cd /home/ehsantork/Documents/VPN && ./start_shadowsocks.sh"
 
 # Proxy configuration for fish shell
 # Add these aliases to use proxy with various commands
@@ -126,11 +126,11 @@ alias with-proxy='~/.local/bin/with-proxy'
 # Set proxy function that exports variables to current shell
 function set-proxy
     set -gx ALL_PROXY socks5://127.0.0.1:1080
-    set -gx HTTP_PROXY http://127.0.0.1:1080
-    set -gx HTTPS_PROXY http://127.0.0.1:1080
-    set -gx http_proxy http://127.0.0.1:1080
-    set -gx https_proxy http://127.0.0.1:1080
-    echo "Proxy environment variables set for current shell session"
+    set -gx HTTP_PROXY socks5://127.0.0.1:1080
+    set -gx HTTPS_PROXY socks5://127.0.0.1:1080
+    set -gx http_proxy socks5://127.0.0.1:1080
+    set -gx https_proxy socks5://127.0.0.1:1080
+    echo "✅ Proxy environment variables set (SOCKS5: 127.0.0.1:1080)"
 end
 
 # Function to unset proxy variables
@@ -154,4 +154,3 @@ end
 
 # Optionally set as default (uncomment to always use rustup)
 # set -gx PATH $HOME/.cargo/bin $PATH
-
