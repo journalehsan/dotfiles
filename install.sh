@@ -55,6 +55,8 @@ configs=(
     "walker"
     "swayosd"
     "mako"
+    "nwg-dock-hyprland"
+    "nwg-drawer"
     "gtk-3.0"
     "gtk-4.0"
     "fontconfig"

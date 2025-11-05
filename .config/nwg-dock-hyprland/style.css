@@ -1,0 +1,30 @@
+window {
+    background-color: rgba(40, 42, 54, 0.95);
+    border-radius: 15px;
+    border: 2px solid rgba(189, 147, 249, 0.8);
+    padding: 4px;
+}
+
+#box {
+    padding: 4px;
+    background-color: transparent;
+}
+
+button {
+    background-color: transparent;
+    border: none;
+    padding: 4px;
+    margin: 2px;
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+    background-color: rgba(68, 71, 90, 0.8);
+    border: 1px solid rgba(139, 233, 253, 0.6);
+}
+
+button:focus {
+    background-color: rgba(98, 114, 164, 0.8);
+    border: 1px solid rgba(189, 147, 249, 0.8);
+}

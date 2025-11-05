@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Nautilus",
+    "exec": "nautilus",
+    "icon": "org.gnome.Nautilus"
+  },
+  {
+    "name": "Chromium",
+    "exec": "chromium",
+    "icon": "chromium"
+  },
+  {
+    "name": "WezTerm",
+    "exec": "wezterm",
+    "icon": "org.wezfurlong.wezterm"
+  },
+  {
+    "name": "Cursor",
+    "exec": "cursor",
+    "icon": "cursor"
+  }
+]
