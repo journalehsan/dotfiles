@@ -2,6 +2,23 @@
 
 Personal configuration files for my Arch Linux setup with Hyprland, managed through symbolic links.
 
+## Branch Strategy 🌳
+
+This repository uses a **device-specific branch strategy**:
+
+- **`main`** - Shared baseline configuration for all devices
+- **`t14-gen3`** - Lenovo ThinkPad T14 Gen 3 specific configs
+- **Device branches** - Each device has its own branch with device-specific tweaks
+
+### Why This Approach?
+
+✓ Keep device-specific configs (display scaling, monitor setup) separate
+✓ Share universal improvements (nvim plugins, scripts) easily via cherry-pick
+✓ Clean separation between baseline and device customizations
+✓ Easy to set up new devices
+
+See `BRANCH_STRATEGY.md` for detailed workflow.
+
 ## What's Included
 
 - **Hyprland** (`~/.config/hypr/`) - Wayland compositor configuration
@@ -14,12 +31,36 @@ Personal configuration files for my Arch Linux setup with Hyprland, managed thro
 
 ## Installation
 
-### Fresh Install
+### For New Devices
 
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/journalehsan/dotfiles.git ~/dotfiles
    cd ~/dotfiles
+   ```
+
+2. **Setup for your device:**
+   ```bash
+   ./setup-new-device.sh <device-name>
+   ```
+   
+   Example:
+   ```bash
+   ./setup-new-device.sh desktop-4k
+   ./setup-new-device.sh work-laptop
+   ```
+
+   This will:
+   - Create a device-specific branch from `main`
+   - Generate device documentation template
+   - Run the installation script
+   - Guide you through device-specific customization
+
+### Existing Device Setup
+
+1. **Checkout your device branch:**
+   ```bash
+   git checkout <your-device-branch>
    ```
 
 2. **Run the install script:**
