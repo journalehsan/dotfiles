@@ -47,7 +47,7 @@ echo -e "${BLUE}[1/3] Linking configuration directories...${NC}"
 
 # Verify critical configs exist and have content
 if [[ -d "$DOTFILES_DIR/.config/nvim" ]]; then
-    nvim_file_count=$(find "$DOTFILES_DIR/.config/nvim" -type f -name "*.lua" 2>/dev/null | wc -l)
+    nvim_file_count=$(find -L "$DOTFILES_DIR/.config/nvim" -type f -name "*.lua" 2>/dev/null | wc -l)
     if [[ $nvim_file_count -eq 0 ]]; then
         echo -e "${RED}WARNING: nvim config directory exists but contains no .lua files!${NC}"
         echo -e "${YELLOW}This might indicate a git submodule issue. Run 'git submodule update --init' or check repository.${NC}"
@@ -115,7 +115,7 @@ if [[ -d "$DOTFILES_DIR/.themes" ]]; then
         if [[ -d "$theme_dir" ]]; then
             theme_name=$(basename "$theme_dir")
             create_symlink "$theme_dir" "$HOME/.themes/$theme_name"
-            ((theme_count++))
+            theme_count=$((theme_count + 1))
         fi
     done
     if [[ $theme_count -gt 0 ]]; then
@@ -166,7 +166,7 @@ if [[ -d "$DOTFILES_DIR/scripts" ]]; then
             # Create the symbolic link
             ln -sf "$script" "$link_path"
             echo -e "${GREEN}Linked: $script_name${NC}"
-            ((script_count++))
+            script_count=$((script_count + 1))
         fi
     done
     
@@ -196,7 +196,7 @@ echo -e "${BLUE}Verifying installation...${NC}"
 # Check nvim config
 if [[ -L "$HOME/.config/nvim" ]]; then
     nvim_target=$(readlink -f "$HOME/.config/nvim")
-    nvim_lua_count=$(find "$HOME/.config/nvim" -type f -name "*.lua" 2>/dev/null | wc -l)
+    nvim_lua_count=$(find -L "$HOME/.config/nvim" -type f -name "*.lua" 2>/dev/null | wc -l)
     if [[ $nvim_lua_count -gt 0 ]]; then
         echo -e "  ${GREEN}✓${NC} nvim: $nvim_lua_count config files linked successfully"
     else
