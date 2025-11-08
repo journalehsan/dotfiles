@@ -1,4 +1,5 @@
-# Ignore nested .git directories
+# Ignore nested .git directories (but files are already tracked)
+# This prevents accidentally creating nested git repos in the future
 **/.git/
 **/.git
 

@@ -1,0 +1,139 @@
+#!/usr/bin/env bash
+# Switch system power management to TLP across common distros
+# - Installs TLP (and optional tools), disables power-profiles-daemon
+# - Enables TLP services, applies a selected profile from dotfiles
+# Usage: switch-to-tlp [--profile performance|balanced|battery] [--no-install]
+set -euo pipefail
+
+have_cmd() { command -v "$1" >/dev/null 2>&1; }
+
+SCRIPT_PATH="$(readlink -f "$0")"
+DOTFILES_DIR="$(dirname "$(dirname "$SCRIPT_PATH")")"
+PROFILES_DIR="$DOTFILES_DIR/tlp/profiles"
+TARGET_CONF="/etc/tlp.d/20-profile.conf"
+PROFILE="balanced"
+DO_INSTALL=1
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --profile)
+      PROFILE="${2:-balanced}"; shift 2;;
+    --no-install)
+      DO_INSTALL=0; shift;;
+    --help|-h)
+      echo "Usage: $0 [--profile performance|balanced|battery] [--no-install]"; exit 0;;
+    *) echo "Unknown arg: $1"; exit 1;;
+  esac
+done
+
+pm_detect() {
+  for pm in pacman apt-get dnf zypper xbps-install eopkg; do
+    if have_cmd "$pm"; then echo "$pm"; return; fi
+  done
+  echo ""; return 0
+}
+
+pm_install_required() {
+  local pm; pm="$(pm_detect)"
+  [[ "$DO_INSTALL" -eq 1 ]] || return 0
+  case "$pm" in
+    pacman)
+      sudo pacman -Syu --noconfirm --needed tlp || { echo "Failed to install tlp via pacman" >&2; exit 2; }
+      sudo pacman -S --noconfirm --needed tlp-rdw || true
+      sudo pacman -S --noconfirm --needed zenity libnotify || true
+      ;;
+    apt-get)
+      sudo apt-get update -y || true
+      sudo DEBIAN_FRONTEND=noninteractive apt-get install -y tlp || { echo "Failed to install tlp via apt" >&2; exit 2; }
+      sudo apt-get install -y tlp-rdw zenity libnotify-bin || true
+      ;;
+    dnf)
+      sudo dnf install -y tlp || { echo "Failed to install tlp via dnf" >&2; exit 2; }
+      sudo dnf install -y tlp-rdw zenity libnotify || true
+      ;;
+    zypper)
+      sudo zypper --non-interactive install tlp || { echo "Failed to install tlp via zypper" >&2; exit 2; }
+      sudo zypper --non-interactive install tlp-rdw zenity libnotify-tools || true
+      ;;
+    xbps-install)
+      sudo xbps-install -Sy tlp || { echo "Failed to install tlp via xbps" >&2; exit 2; }
+      sudo xbps-install -Sy zenity libnotify || true
+      ;;
+    eopkg)
+      sudo eopkg install -y tlp || { echo "Failed to install tlp via eopkg" >&2; exit 2; }
+      sudo eopkg install -y zenity libnotify || true
+      ;;
+    "")
+      echo "No known package manager detected; please install 'tlp' manually." >&2
+      ;;
+  esac
+}
+
+ensure_services() {
+  if have_cmd systemctl; then
+    if systemctl list-unit-files | grep -q '^power-profiles-daemon.service'; then
+      sudo systemctl mask power-profiles-daemon.service || true
+      sudo systemctl stop power-profiles-daemon.service || true
+    fi
+    sudo systemctl enable --now tlp.service || true
+    if systemctl list-unit-files | grep -q '^tlp-sleep.service'; then
+      sudo systemctl enable tlp-sleep.service || true
+    fi
+  fi
+}
+
+detect_vendor() {
+  local v=""; local out="generic"
+  if have_cmd lscpu; then
+    v=$(lscpu 2>/dev/null | awk -F: '/Vendor ID/ {gsub(/^[ \t]+/, "", $2); print tolower($2)}')
+  fi
+  if [[ -z "$v" ]]; then
+    v=$(grep -m1 '^vendor_id' /proc/cpuinfo 2>/dev/null | awk '{print tolower($3)}')
+  fi
+  case "$v" in
+    *amd*|*authenticamd*) out="amd" ;;
+    *intel*|*genuineintel*) out="intel" ;;
+  esac
+  echo "$out"
+}
+
+apply_profile() {
+  local key mode vendor src_conf
+  case "$PROFILE" in
+    performance) key="performance"; mode="ac" ;;
+    balanced)    key="balanced";    mode="auto" ;;
+    battery|battery-saver) key="battery"; mode="bat" ;;
+    *) echo "Unknown --profile: $PROFILE" >&2; exit 1;;
+  esac
+  vendor="$(detect_vendor)"
+  src_conf=""
+  for cand in "$PROFILES_DIR/20-$key.$vendor.conf" "$PROFILES_DIR/20-$key.conf"; do
+    [[ -f "$cand" ]] && { src_conf="$cand"; break; }
+  done
+  [[ -n "$src_conf" ]] || { echo "No profile config for $key (vendor=$vendor)" >&2; exit 2; }
+  sudo mkdir -p /etc/tlp.d
+  sudo install -m 0644 "$src_conf" "$TARGET_CONF"
+  case "$mode" in
+    ac) sudo tlp ac ;;
+    bat) sudo tlp bat ;;
+    auto) sudo tlp auto ;;
+  esac
+  if have_cmd systemctl; then sudo systemctl restart tlp.service || true; fi
+}
+
+link_menu() {
+  mkdir -p "$HOME/.local/bin"
+  ln -sf "$DOTFILES_DIR/scripts/power-profile-menu" "$HOME/.local/bin/power-profile-menu"
+}
+
+main() {
+  pm_install_required
+  ensure_services
+  link_menu
+  apply_profile
+  have_cmd notify-send && notify-send "TLP configured" "Profile: $PROFILE" || true
+  echo "TLP active; profile=$PROFILE" >&2
+  have_cmd tlp-stat && tlp-stat -s || true
+}
+
+main "$@"

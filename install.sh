@@ -45,6 +45,15 @@ create_symlink() {
 # === STEP 1: Link Configuration Directories ===
 echo -e "${BLUE}[1/3] Linking configuration directories...${NC}"
 
+# Verify critical configs exist and have content
+if [[ -d "$DOTFILES_DIR/.config/nvim" ]]; then
+    nvim_file_count=$(find "$DOTFILES_DIR/.config/nvim" -type f -name "*.lua" 2>/dev/null | wc -l)
+    if [[ $nvim_file_count -eq 0 ]]; then
+        echo -e "${RED}WARNING: nvim config directory exists but contains no .lua files!${NC}"
+        echo -e "${YELLOW}This might indicate a git submodule issue. Run 'git submodule update --init' or check repository.${NC}"
+    fi
+fi
+
 # Configuration directories to link
 configs=(
     "omarchy"
@@ -171,13 +180,39 @@ else
 fi
 
 echo
+# Optional: auto-setup TLP if requested
+if [[ "${SETUP_TLP:-0}" == "1" ]]; then
+    if [[ -x "$DOTFILES_DIR/scripts/switch-to-tlp" ]]; then
+        "$DOTFILES_DIR/scripts/switch-to-tlp" --profile "${TLP_PROFILE:-balanced}" || true
+    fi
+fi
+
 echo -e "${GREEN}=== Installation Complete! ===${NC}"
+echo
+
+# === Post-installation verification ===
+echo -e "${BLUE}Verifying installation...${NC}"
+
+# Check nvim config
+if [[ -L "$HOME/.config/nvim" ]]; then
+    nvim_target=$(readlink -f "$HOME/.config/nvim")
+    nvim_lua_count=$(find "$HOME/.config/nvim" -type f -name "*.lua" 2>/dev/null | wc -l)
+    if [[ $nvim_lua_count -gt 0 ]]; then
+        echo -e "  ${GREEN}✓${NC} nvim: $nvim_lua_count config files linked successfully"
+    else
+        echo -e "  ${RED}✗${NC} nvim: symlink exists but no config files found!"
+    fi
+else
+    echo -e "  ${YELLOW}⚠${NC} nvim: not linked (this might be intentional)"
+fi
+
 echo
 echo -e "${BLUE}Summary:${NC}"
 echo -e "  ✓ Configuration directories linked to ~/.config/"
 echo -e "  ✓ Themes linked to ~/.themes/"
 echo -e "  ✓ Icon themes linked to ~/.local/share/icons/"
 echo -e "  ✓ Scripts linked to ~/.local/bin/"
+echo -e "  ✓ TLP helper available: run ${GREEN}switch-to-tlp --profile balanced${NC} to adopt TLP"
 echo
 echo -e "${BLUE}Your dotfiles are now linked and will sync across devices!${NC}"
 echo -e "${YELLOW}Don't forget to run: ${NC}"

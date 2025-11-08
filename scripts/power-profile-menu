@@ -1,0 +1,152 @@
+#!/usr/bin/env bash
+# Power profile switcher for TLP with Zenity menu
+# Profiles: Performance, Balanced, Battery Saver
+set -euo pipefail
+
+# Resolve dotfiles root even when called via symlink from ~/.local/bin
+SCRIPT_PATH="$(readlink -f "$0")"
+DOTFILES_DIR="$(dirname "$(dirname "$SCRIPT_PATH")")"
+PROFILES_DIR="$DOTFILES_DIR/tlp/profiles"
+TARGET_CONF="/etc/tlp.d/20-profile.conf"
+
+have_cmd() { command -v "$1" >/dev/null 2>&1; }
+
+require_tlp() {
+  if ! have_cmd tlp; then
+    echo "TLP is not installed. Please install it (e.g., sudo pacman -S tlp) and try again." >&2
+    have_cmd zenity && zenity --error --title="Power Profile" --text="TLP is not installed.\nInstall it: sudo pacman -S tlp" || true
+    exit 1
+  fi
+}
+
+ensure_tlp_running() {
+  # Ensure tlp service is enabled and running; mask power-profiles-daemon if present to avoid conflicts
+  if have_cmd systemctl; then
+    sudo systemctl enable --now tlp.service >/dev/null 2>&1 || true
+    sudo systemctl enable tlp-sleep.service >/dev/null 2>&1 || true
+    if systemctl list-unit-files | grep -q '^power-profiles-daemon.service'; then
+      # Mask to prevent conflicts with TLP
+      sudo systemctl mask power-profiles-daemon.service >/dev/null 2>&1 || true
+      sudo systemctl stop power-profiles-daemon.service >/dev/null 2>&1 || true
+    fi
+  fi
+}
+
+current_mode() {
+  tlp-stat -s 2>/dev/null | awk -F '=' '/Mode/ {gsub(/^[ \t]+|[ \t]+$/, "", $2); print tolower($2)}'
+}
+
+current_profile_name() {
+  if [[ -f "$TARGET_CONF" ]]; then
+    awk -F '=' '/^# *PROFILE[[:space:]]*/ {print $2; exit}' "$TARGET_CONF" | sed 's/^ *//; s/ *$//' || true
+  fi
+}
+
+detect_vendor() {
+  local v=""; local out="generic"
+  if have_cmd lscpu; then
+    v=$(lscpu 2>/dev/null | awk -F: '/Vendor ID/ {gsub(/^[ \t]+/, "", $2); print tolower($2)}')
+  fi
+  if [[ -z "$v" ]]; then
+    v=$(grep -m1 '^vendor_id' /proc/cpuinfo 2>/dev/null | awk '{print tolower($3)}')
+  fi
+  case "$v" in
+    *amd*|*authenticamd*) out="amd" ;;
+    *intel*|*genuineintel*) out="intel" ;;
+  esac
+  echo "$out"
+}
+
+apply_profile() {
+  local profile="$1"; local mode="auto"; local key=""; local src_conf=""
+  case "$profile" in
+    Performance) mode="ac";   key="performance" ;;
+    Balanced)    mode="auto"; key="balanced" ;;
+    Battery*)    mode="bat";  key="battery" ;;
+    *) echo "Unknown profile: $profile" >&2; exit 2;;
+  esac
+
+  # Prefer vendor-specific config, fallback to generic
+  local vendor; vendor="$(detect_vendor)"
+  for cand in "$PROFILES_DIR/20-$key.$vendor.conf" "$PROFILES_DIR/20-$key.conf"; do
+    if [[ -f "$cand" ]]; then src_conf="$cand"; break; fi
+  done
+
+  if [[ -z "$src_conf" ]]; then
+    echo "No profile config found for $profile (vendor=$vendor)" >&2; exit 2
+  fi
+
+  require_tlp
+  ensure_tlp_running
+  # Install profile config and switch mode
+  sudo mkdir -p /etc/tlp.d
+  sudo install -m 0644 "$src_conf" "$TARGET_CONF"
+
+  case "$mode" in
+    ac)   sudo tlp ac ;;  # force AC settings
+    bat)  sudo tlp bat ;;
+    auto) sudo tlp auto ;;
+  esac
+
+  # Restart TLP to apply all settings from conf
+  if have_cmd systemctl; then
+    sudo systemctl restart tlp.service || true
+  else
+    sudo tlp start || true
+  fi
+
+  local msg="Applied $profile profile (mode: $mode)"
+  have_cmd notify-send && notify-send "Power Profile" "$msg" || true
+  have_cmd zenity && zenity --info --title="Power Profile" --text="$msg" --timeout=2 || true
+}
+
+menu() {
+  local mode; mode="$(current_mode || echo auto)"
+  local prof; prof="$(current_profile_name || echo Balanced)"
+
+  local perfSel balSel batSel
+  case "$mode" in
+    ac)   perfSel=TRUE; balSel=FALSE; batSel=FALSE ;;
+    bat)  perfSel=FALSE; balSel=FALSE; batSel=TRUE ;;
+    auto) perfSel=FALSE; balSel=TRUE; batSel=FALSE ;;
+    *)    perfSel=FALSE; balSel=TRUE; batSel=FALSE ;;
+  esac
+
+  local choice
+  choice=$(zenity --list --radiolist \
+    --title="Power Profile" \
+    --text="Select a power profile (current: ${prof:-Unknown}, mode: ${mode:-auto})" \
+    --column "Select" --column "Profile" \
+    "$perfSel" "Performance" \
+    "$balSel"  "Balanced" \
+    "$batSel"  "Battery Saver" \
+    --ok-label="Apply" --cancel-label="Quit" 2>/dev/null || true)
+
+  case "$choice" in
+    "Performance"|"Balanced"|"Battery Saver") apply_profile "$choice" ;;
+    "") exit 0 ;;
+    *) echo "No change" ;;
+  esac
+}
+
+main() {
+  # CLI usage: power-profile-menu [performance|balanced|battery|status]
+  if [[ $# -gt 0 ]]; then
+    case "$1" in
+      performance) apply_profile "Performance" ;;
+      balanced)    apply_profile "Balanced" ;;
+      battery|battery-saver) apply_profile "Battery Saver" ;;
+      status) echo "mode=$(current_mode 2>/dev/null || echo auto), profile=$(current_profile_name 2>/dev/null || echo Balanced)"; exit 0 ;;
+      *) echo "Usage: $0 [performance|balanced|battery|status]"; exit 1 ;;
+    esac
+    exit 0
+  fi
+
+  if ! have_cmd zenity; then
+    echo "zenity is not installed. Use CLI: $0 [performance|balanced|battery] or install zenity." >&2
+    exit 1
+  fi
+  menu
+}
+
+main "$@"

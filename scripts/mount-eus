@@ -1,0 +1,160 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SHARE="//mtnirancell.ir/its/EUS"
+MOUNT_POINT="/mnt/EUS"
+DEFAULT_DOMAIN="MTN"
+CREDENTIALS_FILE="${HOME}/.config/samba/eus-credentials"
+MOUNT_OPTIONS="rw,uid=$(id -u),gid=$(id -g),vers=3.0,sec=ntlmssp"
+
+print_help() {
+  cat <<'EOF'
+Usage: mount-eus [command]
+
+Commands:
+  mount       Mount the //mtnirancell.ir/its/EUS share at /mnt/EUS
+  umount      Unmount the share
+  status      Show whether the share is currently mounted
+  help        Show this help message
+
+Environment variables:
+  DOMAIN      Override the default domain (empty string to skip)
+  SHARE_OPTS  Append extra mount options (comma-separated)
+  ELEVATE_CMD Force privilege helper (pkexec, sudo, doas, ...)
+
+If ~/.config/samba/eus-credentials exists, it will be used automatically.
+Expected format:
+  username=USER
+  password=SECRET
+  domain=DOMAIN (optional)
+If the credentials file provides a domain, the DOMAIN environment variable is ignored.
+EOF
+}
+
+ensure_dependencies() {
+  if ! command -v mount.cifs >/dev/null 2>&1; then
+    echo "mount-eus: mount.cifs not found. Install cifs-utils first." >&2
+    exit 1
+  fi
+}
+
+determine_elevate() {
+  if [[ -n "${ELEVATE_CMD:-}" ]]; then
+    ELEVATE_BIN="${ELEVATE_CMD}"
+    return
+  fi
+
+  if command -v pkexec >/dev/null 2>&1; then
+    ELEVATE_BIN="pkexec"
+  else
+    ELEVATE_BIN="sudo"
+  fi
+}
+
+run_elevated() {
+  local cmd="$1"
+  shift
+
+  if [[ -z "${ELEVATE_BIN:-}" ]]; then
+    determine_elevate
+  fi
+
+  if [[ "${ELEVATE_BIN}" == "pkexec" ]]; then
+    local resolved
+    resolved="$(command -v "${cmd}")" || {
+      echo "mount-eus: unable to resolve command '${cmd}' for pkexec" >&2
+      exit 1
+    }
+    "${ELEVATE_BIN}" "${resolved}" "$@"
+  else
+    "${ELEVATE_BIN}" "${cmd}" "$@"
+  fi
+}
+
+ensure_mountpoint() {
+  if [[ ! -d "${MOUNT_POINT}" ]]; then
+    run_elevated mkdir -p "${MOUNT_POINT}"
+  fi
+}
+
+is_mounted() {
+  mountpoint -q "${MOUNT_POINT}"
+}
+
+mount_share() {
+  ensure_dependencies
+  ensure_mountpoint
+
+  if is_mounted; then
+    echo "mount-eus: ${MOUNT_POINT} is already mounted."
+    return
+  fi
+
+  local domain="${DEFAULT_DOMAIN}"
+  if [[ ${DOMAIN+x} ]]; then
+    domain="${DOMAIN}"
+  fi
+  local opts="${MOUNT_OPTIONS}"
+  local cred_opt=""
+  local domain_opt=""
+  local credentials_has_domain=0
+
+  if [[ -n "${SHARE_OPTS:-}" ]]; then
+    opts="${opts},${SHARE_OPTS}"
+  fi
+
+  if [[ -f "${CREDENTIALS_FILE}" ]]; then
+    cred_opt="credentials=${CREDENTIALS_FILE}"
+    if grep -qi '^domain=' "${CREDENTIALS_FILE}"; then
+      credentials_has_domain=1
+    fi
+  else
+    read -rp "SMB username: " username
+    read -srp "SMB password: " password
+    echo
+    cred_opt="username=${username},password=${password}"
+  fi
+
+  if [[ -n "${domain}" ]] && (( credentials_has_domain == 0 )); then
+    domain_opt=",domain=${domain}"
+  fi
+
+  run_elevated mount -t cifs "${SHARE}" "${MOUNT_POINT}" -o "${cred_opt}${domain_opt},${opts}"
+  echo "mount-eus: mounted ${SHARE} at ${MOUNT_POINT}"
+}
+
+umount_share() {
+  if ! is_mounted; then
+    echo "mount-eus: ${MOUNT_POINT} is not mounted."
+    return
+  fi
+
+  run_elevated umount "${MOUNT_POINT}"
+  echo "mount-eus: unmounted ${MOUNT_POINT}"
+}
+
+show_status() {
+  if is_mounted; then
+    echo "mount-eus: share is mounted on ${MOUNT_POINT}"
+  else
+    echo "mount-eus: share is not mounted"
+  fi
+}
+
+main() {
+  local cmd="${1:-mount}"
+  case "${cmd}" in
+    mount) mount_share ;;
+    umount|unmount) umount_share ;;
+    status) show_status ;;
+    help|-h|--help) print_help ;;
+    *)
+      echo "mount-eus: unknown command '${cmd}'" >&2
+      print_help
+      exit 1
+      ;;
+  esac
+}
+
+main "$@"
