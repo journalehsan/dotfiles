@@ -1,0 +1,17 @@
+{
+  "columns": 6,
+  "icon-size": 64,
+  "categories": true,
+  "recent": true,
+  "search-on-start": false,
+  "term": "kitty",
+  "overlay": true,
+  "css-file": "~/.config/nwg-drawer/style.css",
+  "width": 800,
+  "height": 600,
+  "alignment": "fill",
+  "margin-top": 0,
+  "margin-bottom": 0,
+  "margin-left": 0,
+  "margin-right": 0
+}

@@ -1,0 +1,11 @@
+window {
+    background-color: rgba(189, 147, 249, 0.3);
+    border-radius: 0;
+    border: none;
+    padding: 0;
+}
+
+#box {
+    background-color: transparent;
+    padding: 0;
+}

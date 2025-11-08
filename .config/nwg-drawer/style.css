@@ -1,0 +1,95 @@
+/* nwg-drawer Dracula Theme with 8px rounded corners */
+
+window {
+    background-color: rgba(40, 42, 54, 0.98);
+    border-radius: 8px;
+    font-family: "JetBrains Mono", "Noto Sans", sans-serif;
+}
+
+#drawer {
+    background-color: rgba(40, 42, 54, 0.98);
+    border-radius: 8px;
+}
+
+#searchbox {
+    background-color: rgba(68, 71, 90, 0.8);
+    color: #f8f8f2;
+    border: 1px solid rgba(189, 147, 249, 0.4);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    margin: 8px;
+}
+
+#searchbox:focus {
+    border: 2px solid rgba(189, 147, 249, 0.8);
+    background-color: rgba(68, 71, 90, 0.95);
+}
+
+button {
+    background-color: rgba(68, 71, 90, 0.7);
+    color: #f8f8f2;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 4px;
+    min-width: 80px;
+    min-height: 80px;
+    font-size: 11px;
+    transition: all 0.2s ease;
+}
+
+button:hover {
+    background-color: rgba(98, 114, 164, 0.9);
+    box-shadow: 0 4px 12px rgba(189, 147, 249, 0.3);
+}
+
+button:active {
+    background-color: rgba(139, 233, 253, 0.8);
+    color: #282a36;
+}
+
+button:focus {
+    outline: 2px solid rgba(189, 147, 249, 0.8);
+    outline-offset: 2px;
+}
+
+/* Category buttons */
+.category-button {
+    background-color: rgba(68, 71, 90, 0.8);
+    border-radius: 8px;
+}
+
+.category-button:hover {
+    background-color: rgba(98, 114, 164, 0.9);
+}
+
+.category-button.active {
+    background-color: rgba(139, 233, 253, 0.9);
+    color: #282a36;
+}
+
+/* Scrollbar */
+scrollbar {
+    background-color: rgba(40, 42, 54, 0.5);
+    border-radius: 8px;
+}
+
+scrollbar slider {
+    background-color: rgba(189, 147, 249, 0.6);
+    border-radius: 8px;
+}
+
+scrollbar slider:hover {
+    background-color: rgba(189, 147, 249, 0.9);
+}
+
+/* Images/icons in buttons */
+image {
+    -gtk-icon-effect: none;
+}
+
+label {
+    color: #f8f8f2;
+    font-size: 11px;
+}

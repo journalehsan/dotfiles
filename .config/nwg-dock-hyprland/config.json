@@ -1,0 +1,24 @@
+{
+  "position": "bottom",
+  "alignment": "center",
+  "margin-bottom": 10,
+  "margin-top": 0,
+  "margin-left": 0,
+  "margin-right": 0,
+  "icon-size": 48,
+  "task-padding": 2,
+  "workspace-margin": 8,
+  "show-all-workspaces": false,
+  "show-workspace-buttons": true,
+  "show-app-launcher": true,
+  "output": "",
+  "pinned-apps": [
+    "firefox",
+    "thunar",
+    "kitty",
+    "code"
+  ],
+  "dock-exclusive": true,
+  "layer": "bottom",
+  "css-file": "~/.config/nwg-dock/style.css"
+}

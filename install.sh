@@ -70,6 +70,8 @@ configs=(
     "qt5ct"
     "qt6ct"
     "QtProject"
+    "nwg-dock-hyprland"
+    "nwg-drawer"
 )
 
 # Create symbolic links for each config
