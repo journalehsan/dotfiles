@@ -111,13 +111,7 @@
     }
   },
 
-  "custom/network-speed": {
-    "exec": "~/.config/waybar/scripts/network-speed.sh",
-    "return-type": "json",
-    "format": "{}",
-    "interval": 3,
-    "tooltip": true
-  },
+ 
   "custom/weather-tehran": {
     "exec": "~/.config/waybar/scripts/weather-tehran.py",
     "return-type": "json",

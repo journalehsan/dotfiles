@@ -1,0 +1,15 @@
+# Optimized btrfs mount options for eMMC storage
+# Add these to /etc/fstab
+
+# Current options you have (keep these):
+# compress=zstd:3,ssd,space_cache=v2
+
+# Recommended additional options for eMMC:
+# noatime - reduces write operations (important for eMMC longevity)
+# commit=120 - reduces commit frequency (default 30s, increase to 120s)
+# discard=async - async trim for eMMC (better than continuous)
+
+# Example fstab line:
+# /dev/mapper/root  /  btrfs  rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,commit=120,subvol=/@  0 0
+
+# Apply same options to all subvolumes (@home, @log, @pkg)

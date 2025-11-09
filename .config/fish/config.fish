@@ -105,14 +105,14 @@ set -gx DROPBOX_CLIENT_SECRET "r9oyjntvotwlp4x"
 set -gx DROPBOX_REDIRECT_URI "https://wof-softwares.github.io/Docura/oauth-redirect.html"
 
 # VPN Aliases
-alias vpn-start="cd /home/ehsator/Documents/VPN && ./start_all.sh"
-alias vpn-stop="cd /home/ehsator/Documents/VPN && ./stop_all.sh"
-alias vpn-check="cd /home/ehsator/Documents/VPN && ./check_all.sh"
-alias vpn-status="cd /home/ehsator/Documents/VPN && ./check_all.sh"
+alias vpn-start="cd /home/ehsantork/Documents/VPN && ./start_all.sh"
+alias vpn-stop="cd /home/ehsantork/Documents/VPN && ./stop_all.sh"
+alias vpn-check="cd /home/ehsantork/Documents/VPN && ./check_all.sh"
+alias vpn-status="cd /home/ehsantork/Documents/VPN && ./check_all.sh"
 
 # Individual service aliases
-alias ssh-tunnel="cd /home/ehsator/Documents/VPN && ./start_tunnel.sh"
-alias shadowsocks="cd /home/ehsator/Documents/VPN && ./start_shadowsocks.sh"
+alias ssh-tunnel="cd /home/ehsantork/Documents/VPN && ./start_tunnel.sh"
+alias shadowsocks="cd /home/ehsantork/Documents/VPN && ./start_shadowsocks.sh"
 
 # Proxy configuration for fish shell
 # Add these aliases to use proxy with various commands

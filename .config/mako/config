@@ -1,1 +1,48 @@
-/home/ehsator/.config/omarchy/current/theme/mako.ini
+# Dracula theme for mako
+# Based on https://draculatheme.com/contribute
+
+# Layout
+max-visible=5
+sort=-time
+layer=overlay
+anchor=top-right
+
+# Geometry
+width=350
+height=150
+margin=10
+padding=15
+border-size=2
+border-radius=10
+
+# Style
+font=monospace 11
+background-color=#282a36
+text-color=#f8f8f2
+border-color=#bd93f9
+progress-color=over #44475a
+
+# Icons
+icon-path=/usr/share/icons/Papirus-Dark
+max-icon-size=48
+
+# Behavior
+default-timeout=5000
+ignore-timeout=0
+
+# Urgency: low
+[urgency=low]
+border-color=#6272a4
+background-color=#282a36
+
+# Urgency: normal
+[urgency=normal]
+border-color=#bd93f9
+background-color=#282a36
+
+# Urgency: critical
+[urgency=critical]
+border-color=#ff5555
+background-color=#ff5555
+text-color=#f8f8f2
+default-timeout=0

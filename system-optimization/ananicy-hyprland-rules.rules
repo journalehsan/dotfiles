@@ -1,0 +1,38 @@
+# Ananicy-cpp rules for Hyprland
+# Place in /etc/ananicy.d/00-hyprland.rules
+
+# Hyprland compositor - highest priority
+{ "name": "Hyprland", "type": "Compositor", "nice": -10, "sched": "rr", "rtprio": 10, "ioclass": "realtime", "ionice": 0 }
+{ "name": "hyprland", "type": "Compositor", "nice": -10, "sched": "rr", "rtprio": 10, "ioclass": "realtime", "ionice": 0 }
+
+# Window manager components
+{ "name": "waybar", "type": "WM_Bar", "nice": -5, "ioclass": "realtime", "ionice": 1 }
+{ "name": "eww", "type": "WM_Bar", "nice": -5, "ioclass": "realtime", "ionice": 1 }
+{ "name": "rofi", "type": "WM_Launcher", "nice": -5, "ioclass": "realtime", "ionice": 1 }
+{ "name": "wofi", "type": "WM_Launcher", "nice": -5, "ioclass": "realtime", "ionice": 1 }
+{ "name": "mako", "type": "WM_Notification", "nice": 0, "ioclass": "best-effort", "ionice": 2 }
+{ "name": "dunst", "type": "WM_Notification", "nice": 0, "ioclass": "best-effort", "ionice": 2 }
+
+# Audio
+{ "name": "pipewire", "type": "Player-Audio", "nice": -10, "ioclass": "realtime", "ionice": 0 }
+{ "name": "wireplumber", "type": "Player-Audio", "nice": -10, "ioclass": "realtime", "ionice": 0 }
+
+# Terminals - medium priority
+{ "name": "kitty", "type": "Terminal", "nice": 0, "ioclass": "best-effort", "ionice": 2 }
+{ "name": "alacritty", "type": "Terminal", "nice": 0, "ioclass": "best-effort", "ionice": 2 }
+{ "name": "foot", "type": "Terminal", "nice": 0, "ioclass": "best-effort", "ionice": 2 }
+
+# Browsers - lower priority (heavy on resources)
+{ "name": "firefox", "type": "BrowserApp", "nice": 5, "ioclass": "best-effort", "ionice": 4, "cgroup": "browsers" }
+{ "name": "chromium", "type": "BrowserApp", "nice": 5, "ioclass": "best-effort", "ionice": 4, "cgroup": "browsers" }
+{ "name": "brave", "type": "BrowserApp", "nice": 5, "ioclass": "best-effort", "ionice": 4, "cgroup": "browsers" }
+
+# File managers
+{ "name": "thunar", "type": "FileManager", "nice": 0, "ioclass": "best-effort", "ionice": 3 }
+{ "name": "nautilus", "type": "FileManager", "nice": 0, "ioclass": "best-effort", "ionice": 3 }
+{ "name": "pcmanfm", "type": "FileManager", "nice": 0, "ioclass": "best-effort", "ionice": 3 }
+
+# Background services - lowest priority
+{ "name": "telegram-desktop", "type": "Chat", "nice": 10, "ioclass": "idle", "ionice": 7 }
+{ "name": "discord", "type": "Chat", "nice": 10, "ioclass": "idle", "ionice": 7 }
+{ "name": "syncthing", "type": "BG_CPUIO", "nice": 19, "ioclass": "idle", "ionice": 7 }
