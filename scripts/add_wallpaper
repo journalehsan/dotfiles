@@ -6,16 +6,118 @@ TARGET_DIR="$HOME/.config/omarchy/themes/dracula/backgrounds"
 # Create target directory if it doesn't exist
 mkdir -p "$TARGET_DIR"
 
-# Get Bing's daily wallpaper metadata (JSON)
-JSON=$(curl -s "https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=en-US")
+# Default values
+SOURCE="bing"
+USE_PROXY=false
+PROXY_ADDR="socks5://127.0.0.1:1080"
 
-# Extract image URL
-IMG_URL="https://www.bing.com$(echo "$JSON" | grep -oP '"url":"\K[^"]+')"
+# Function to display usage
+usage() {
+    cat << EOF
+Usage: $(basename "$0") [OPTIONS]
 
-# Extract image filename
-FILENAME=$(basename "$IMG_URL" | cut -d'&' -f1)
+OPTIONS:
+  --source <source>  Wallpaper source: bing (default), flickr, wikipedia, picsum
+  --proxy            Use SOCKS5 proxy (127.0.0.1:1080)
+  --help             Show this help message
 
-# Download the image
-curl -s "$IMG_URL" -o "$TARGET_DIR/$FILENAME"
+EXAMPLES:
+  $(basename "$0")                     # Download from Bing (default)
+  $(basename "$0") --source picsum     # Download from Lorem Picsum
+  $(basename "$0") --proxy             # Use proxy with Bing
+  $(basename "$0") --source flickr --proxy  # Use proxy with Flickr
+EOF
+    exit 0
+}
 
-echo "✅ Bing wallpaper saved to: $TARGET_DIR/$FILENAME"
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --source)
+            SOURCE="$2"
+            shift 2
+            ;;
+        --proxy)
+            USE_PROXY=true
+            shift
+            ;;
+        --help)
+            usage
+            ;;
+        *)
+            echo "Unknown option: $1"
+            usage
+            ;;
+    esac
+done
+
+# Build curl options
+CURL_OPTS="-s"
+if [ "$USE_PROXY" = true ]; then
+    CURL_OPTS="$CURL_OPTS --socks5 $PROXY_ADDR"
+fi
+
+# Function to download and save wallpaper
+download_wallpaper() {
+    local url=$1
+    local filename=$2
+    local source_name=$3
+    
+    eval "curl $CURL_OPTS '$url' -o '$TARGET_DIR/$filename'"
+    if [ $? -eq 0 ]; then
+        echo "✅ $source_name wallpaper saved to: $TARGET_DIR/$filename"
+    else
+        echo "❌ Failed to download from $source_name"
+        exit 1
+    fi
+}
+
+# Download based on source
+case $SOURCE in
+    bing)
+        # Get Bing's daily wallpaper metadata (JSON)
+        JSON=$(eval "curl $CURL_OPTS 'https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=en-US'")
+        IMG_URL="https://www.bing.com$(echo "$JSON" | grep -oP '"url":"\K[^"]+')" 
+        FILENAME=$(basename "$IMG_URL" | cut -d'&' -f1)
+        download_wallpaper "$IMG_URL" "$FILENAME" "Bing"
+        ;;
+    picsum)
+        # Lorem Picsum - random landscape photo
+        IMG_URL="https://picsum.photos/1920/1080?random=$(date +%s)"
+        FILENAME="picsum_$(date +%Y%m%d)_$(date +%H%M).jpg"
+        eval "curl $CURL_OPTS -L '$IMG_URL' -o '$TARGET_DIR/$FILENAME'"
+        if [ $? -eq 0 ]; then
+            echo "✅ Picsum wallpaper saved to: $TARGET_DIR/$FILENAME"
+        else
+            echo "❌ Failed to download from Picsum"
+            exit 1
+        fi
+        ;;
+    flickr)
+        # Flickr public photos feed
+        JSON=$(eval "curl $CURL_OPTS 'https://www.flickr.com/services/feeds/photos_public.gne?format=json&nojsoncallback=1&tags=landscape&per_page=1'")
+        IMG_URL=$(echo "$JSON" | python3 -c "import json, sys; data = json.load(sys.stdin); print(data['items'][0]['media']['m'])" 2>/dev/null)
+        FILENAME="flickr_$(date +%Y%m%d).jpg"
+        if [ -z "$IMG_URL" ]; then
+            echo "❌ Failed to get Flickr image URL"
+            exit 1
+        fi
+        download_wallpaper "$IMG_URL" "$FILENAME" "Flickr"
+        ;;
+    wikipedia)
+        # Wikipedia Picture of the Day
+        WIKI_JSON=$(eval "curl $CURL_OPTS 'https://en.wikipedia.org/api/rest_v1/feed/featured/$(date +%Y/%m/%d)'")
+        IMG_URL=$(echo "$WIKI_JSON" | grep -oP '"originalimage":\{"source":"\K[^"]+' | head -1)
+        FILENAME="wikipedia_$(date +%Y%m%d).jpg"
+        if [ -z "$IMG_URL" ]; then
+            echo "❌ Failed to get Wikipedia image URL"
+            exit 1
+        fi
+        download_wallpaper "$IMG_URL" "$FILENAME" "Wikipedia"
+        ;;
+    *)
+        echo "❌ Unknown source: $SOURCE"
+        echo "Available sources: bing, flickr, wikipedia, picsum"
+        exit 1
+        ;;
+esac
