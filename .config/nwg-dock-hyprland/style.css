@@ -1,70 +1,30 @@
-/* nwg-dock Dracula Theme with 8px rounded corners */
-
 window {
     background-color: rgba(40, 42, 54, 0.95);
-    border-radius: 8px;
-    margin: 8px;
+    border-radius: 15px;
+    border: 2px solid rgba(189, 147, 249, 0.8);
+    padding: 4px;
+}
+
+#box {
+    padding: 4px;
+    background-color: transparent;
 }
 
 button {
-    background-color: rgba(68, 71, 90, 0.8);
-    color: #f8f8f2;
+    background-color: transparent;
     border: none;
+    padding: 4px;
+    margin: 2px;
     border-radius: 8px;
-    padding: 8px;
-    margin: 4px;
-    min-width: 40px;
-    min-height: 40px;
-    font-size: 10px;
+    transition: all 0.2s ease-in-out;
 }
 
 button:hover {
-    background-color: rgba(98, 114, 164, 0.9);
-    transition: all 0.2s ease;
-}
-
-button:active {
-    background-color: rgba(139, 233, 253, 0.8);
-    color: #282a36;
+    background-color: rgba(68, 71, 90, 0.8);
+    border: 1px solid rgba(139, 233, 253, 0.6);
 }
 
 button:focus {
-    outline: 2px solid rgba(189, 147, 249, 0.8);
-    outline-offset: 2px;
-}
-
-/* Workspace buttons */
-.workspace-button {
-    background-color: rgba(68, 71, 90, 0.8);
-    border-radius: 8px;
-}
-
-.workspace-button.active {
-    background-color: rgba(139, 233, 253, 0.9);
-    color: #282a36;
-}
-
-/* Task buttons */
-.task-button {
-    background-color: rgba(68, 71, 90, 0.8);
-    border-radius: 8px;
-}
-
-.task-button:hover {
-    background-color: rgba(98, 114, 164, 0.9);
-}
-
-/* Scrollbar */
-scrollbar {
-    background-color: rgba(40, 42, 54, 0.5);
-    border-radius: 8px;
-}
-
-scrollbar slider {
-    background-color: rgba(189, 147, 249, 0.6);
-    border-radius: 8px;
-}
-
-scrollbar slider:hover {
-    background-color: rgba(189, 147, 249, 0.9);
+    background-color: rgba(98, 114, 164, 0.8);
+    border: 1px solid rgba(189, 147, 249, 0.8);
 }
