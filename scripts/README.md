@@ -17,3 +17,7 @@ To add a new script:
 1. Place the script file in this directory
 2. Run `~/dotfiles/restore_local_bin.sh` to create the symbolic link
 3. The script will be accessible from your PATH as `script_name`
+
+## Notable scripts
+
+- `setup-firewalld.sh`: Install and configure firewalld with a Rocky Linux-style baseline on Arch.

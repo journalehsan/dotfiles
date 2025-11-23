@@ -55,6 +55,7 @@ configs=(
     "walker"
     "swayosd"
     "mako"
+    "wezterm"
     "gtk-3.0"
     "gtk-4.0"
     "fontconfig"

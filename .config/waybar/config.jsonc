@@ -124,12 +124,6 @@
     "interval": 900,
     "tooltip": true
   },
-  "custom/keyboard-layout": {
-    "exec": "~/.config/waybar/scripts/keyboard-layout.py",
-    "return-type": "json",
-    "interval": 1,
-    "tooltip": true
-  },
   "clock": {
     "format": "󰥔 {:L%H:%M}",
     "format-alt": "󰸗 {:L%A, %d %B %Y}",
@@ -203,7 +197,7 @@
     "format-connected-battery": "󰂱 {num_connections} {device_battery_percentage}%",
     "tooltip-format": "Bluetooth: {status}\nDevices connected: {num_connections}",
     "tooltip-format-connected": "Bluetooth: Connected\n{device_enumerate}",
-    "on-click": "blueberry"
+    "on-click": "omarchy-launch-bluetooth"
   },
   "pulseaudio": {
     "format": "{icon} {volume}%",
