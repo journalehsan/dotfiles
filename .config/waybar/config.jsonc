@@ -67,7 +67,7 @@
   "custom/omarchy": {
     "format": "<span size='x-large'>󰣇</span>",
     "on-click": "omarchy-menu",
-    "on-click-right": "omarchy-launch-terminal",
+    "on-click-right": "xdg-terminal-exec",
     "tooltip-format": "Omarchy Menu\n\nSuper + Alt + Space"
   },
 
@@ -197,7 +197,7 @@
     "format-connected-battery": "󰂱 {num_connections} {device_battery_percentage}%",
     "tooltip-format": "Bluetooth: {status}\nDevices connected: {num_connections}",
     "tooltip-format-connected": "Bluetooth: Connected\n{device_enumerate}",
-    "on-click": "blueberry"
+    "on-click": "omarchy-launch-bluetooth"
   },
   "pulseaudio": {
     "format": "{icon} {volume}%",
