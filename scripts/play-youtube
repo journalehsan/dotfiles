@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Play YouTube videos with mpv at optimal quality for 1280x800 display
+# Prioritizes 720p, fallback to 1080p or 480p
+
+if [ -z "$1" ]; then
+    echo "Usage: $(basename "$0") <youtube-url>"
+    echo "Example: $(basename "$0") https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    exit 1
+fi
+
+# Check if mpv is installed
+if ! command -v mpv &> /dev/null; then
+    echo "Error: mpv is not installed. Install it with: sudo pacman -S mpv"
+    exit 1
+fi
+
+# Check if yt-dlp is installed (mpv uses it for YouTube)
+if ! command -v yt-dlp &> /dev/null; then
+    echo "Warning: yt-dlp is not installed. mpv may fall back to youtube-dl."
+    echo "For best results, install it with: sudo pacman -S yt-dlp"
+fi
+
+# Play with quality preference: 720p > 1080p > 480p
+# Format selection prioritizes 720p, then 1080p, then 480p, then any available format
+mpv --ytdl-format="bestvideo[height<=?720]+bestaudio/bestvideo[height<=?1080]+bestaudio/bestvideo[height<=?480]+bestaudio/best" "$1"
