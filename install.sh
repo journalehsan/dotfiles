@@ -72,6 +72,7 @@ configs=(
     "QtProject"
     "nwg-dock-hyprland"
     "nwg-drawer"
+    "wezterm"
 )
 
 # Create symbolic links for each config
@@ -101,6 +102,16 @@ for config_file in "${config_files[@]}"; do
         echo -e "${RED}Warning: $source_path does not exist, skipping...${NC}"
     fi
 done
+
+# Link bashrc
+bashrc_source="$DOTFILES_DIR/.bashrc"
+bashrc_target="$HOME/.bashrc"
+
+if [[ -f "$bashrc_source" ]]; then
+    create_symlink "$bashrc_source" "$bashrc_target"
+else
+    echo -e "${RED}Warning: $bashrc_source does not exist, skipping...${NC}"
+fi
 
 echo
 
@@ -211,6 +222,7 @@ fi
 echo
 echo -e "${BLUE}Summary:${NC}"
 echo -e "  ✓ Configuration directories linked to ~/.config/"
+echo -e "  ✓ Bash config linked to ~/.bashrc"
 echo -e "  ✓ Themes linked to ~/.themes/"
 echo -e "  ✓ Icon themes linked to ~/.local/share/icons/"
 echo -e "  ✓ Scripts linked to ~/.local/bin/"
