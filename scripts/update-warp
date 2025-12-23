@@ -1,0 +1,35 @@
+#!/usr/bin/env fish
+
+# Update Warp Terminal on Arch Linux
+
+echo "Updating Warp Terminal..."
+
+# Add GPG key
+sudo pacman-key -r "linux-maintainers@warp.dev" --keyserver hkp://keys.openpgp.org:80
+and sudo pacman-key --lsign-key "linux-maintainers@warp.dev"
+and begin
+    # Create cache directory and backup pacman.conf
+    mkdir -p ~/.cache/warp-terminal
+    and cp /etc/pacman.conf ~/.cache/warp-terminal/
+    
+    # Add Warp repository to pacman.conf if not already present
+    if not grep -q "\[warpdotdev\]" /etc/pacman.conf
+        echo "Adding Warp repository to pacman.conf..."
+        sudo sh -c "echo '
+[warpdotdev]
+Server = https://releases.warp.dev/linux/pacman/\$repo/\$arch' >> /etc/pacman.conf"
+    else
+        echo "Warp repository already configured"
+    end
+    
+    # Update and install
+    and sudo pacman -Sy warp-terminal
+    and warp_finish_update upBFMqe
+end
+
+if test $status -eq 0
+    echo "Warp Terminal updated successfully!"
+else
+    echo "Update failed!"
+    exit 1
+end

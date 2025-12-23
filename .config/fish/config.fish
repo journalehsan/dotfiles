@@ -50,6 +50,8 @@ if status is-interactive
     # System update aliases
     alias update-system='sudo torsocks pacman -Syyu'
     alias yays='torsocks yay'
+    alias update-dns='/home/ehsator/dotfiles/scripts/update_dns.sh'
+    alias update-warp='/home/ehsator/dotfiles/scripts/update-warp'
 
     # Git aliases
     alias g='git'
@@ -155,3 +157,15 @@ end
 # Optionally set as default (uncomment to always use rustup)
 # set -gx PATH $HOME/.cargo/bin $PATH
 
+# VMware Horizon View Xephyr Alias
+alias vmview-xephyr='/home/ehsator/dotfiles/scripts/vmview-xephyr'
+
+# opencode
+fish_add_path /home/ehsator/.opencode/bin
+
+# Ollama service control alias
+alias ollama-svc='~/.local/bin/ollama-svc'
+set -gx PATH $PATH ~/.local/bin
+
+# Fabric TUI alias
+alias fabric-tui='~/.local/bin/fabric-tui'
