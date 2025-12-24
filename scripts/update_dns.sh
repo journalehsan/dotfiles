@@ -4,7 +4,7 @@ set -euo pipefail
 # Adds nameserver 127.0.0.1 to /etc/resolv.conf, restarts DNS services,
 # and verifies DDNS update with a success dialog when possible.
 
-NAMESERVER="127.0.0.1"
+NAMESERVERS=("178.22.122.101" "185.51.200.1")
 RESOLV_CONF="/etc/resolv.conf"
 UPDATE_URL="https://ddns.shecan.ir/update?password=2f2b55978506b97d"
 
@@ -38,19 +38,20 @@ notify_failure() {
 }
 
 ensure_nameserver() {
-  if [ -f "$RESOLV_CONF" ] && grep -Eq "^nameserver[[:space:]]+$NAMESERVER$" "$RESOLV_CONF"; then
-    log "Nameserver $NAMESERVER already present in $RESOLV_CONF"
-    return
+  local temp_file
+  temp_file=$(mktemp)
+
+  if [ -f "$RESOLV_CONF" ]; then
+    grep -v "^nameserver[[:space:]]" "$RESOLV_CONF" > "$temp_file" || true
   fi
 
-  if [ ! -f "$RESOLV_CONF" ]; then
-    log "$RESOLV_CONF not found; creating it with nameserver $NAMESERVER (sudo needed)"
-    echo "nameserver $NAMESERVER" | sudo tee "$RESOLV_CONF" >/dev/null
-    return
-  fi
+  for ns in "${NAMESERVERS[@]}"; do
+    printf "nameserver %s\n" "$ns" >> "$temp_file"
+  done
 
-  log "Adding nameserver $NAMESERVER to $RESOLV_CONF (sudo needed)"
-  printf "\nnameserver %s\n" "$NAMESERVER" | sudo tee -a "$RESOLV_CONF" >/dev/null
+  log "Updating nameservers in $RESOLV_CONF (sudo needed)"
+  sudo cp "$temp_file" "$RESOLV_CONF"
+  rm -f "$temp_file"
 }
 
 restart_services() {
