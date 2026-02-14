@@ -5,7 +5,7 @@
 
 # Set your proxy details here - update these with your Shadowsocks server details
 PROXY_HOST="127.0.0.1"  # Replace with your proxy host (usually 127.0.0.1 if using local Shadowsocks client)
-PROXY_PORT="1080"       # Replace with your proxy port (check your Shadowsocks client config)
+PROXY_PORT="8087"       # Replace with your proxy port (check your Shadowsocks client config)
 
 # Check if we have at least one argument
 if [ $# -eq 0 ]; then
