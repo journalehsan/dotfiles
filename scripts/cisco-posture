@@ -1,0 +1,196 @@
+#!/bin/bash
+
+# cisco-posture - Spoof OS identity for Cisco ISE posture compliance
+# Usage: cisco-posture [--set-ubuntu | --set-centos10 | --set-fedora43 | --restore]
+
+BACKUP_OS_RELEASE="/etc/os-release.cisco-bak"
+BACKUP_LSB_RELEASE="/etc/lsb-release.cisco-bak"
+BACKUP_HOSTNAME="/etc/hostname.cisco-bak"
+OS_RELEASE="/etc/os-release"
+LSB_RELEASE="/etc/lsb-release"
+HOSTNAME_FILE="/etc/hostname"
+CISCO_HOSTNAME="IS-01022345"
+
+usage() {
+    echo "Usage: cisco-posture <option>"
+    echo ""
+    echo "Options:"
+    echo "  --set-ubuntu     Spoof OS as Ubuntu 22.04 LTS"
+    echo "  --set-centos10   Spoof OS as CentOS Stream 10"
+    echo "  --set-fedora43   Spoof OS as Fedora Linux 43"
+    echo "  --restore        Restore original Arch Linux identity"
+    echo "  --status         Show current OS identity"
+}
+
+check_root() {
+    if [[ $EUID -ne 0 ]]; then
+        echo "error: this script must be run as root (use sudo)"
+        exit 1
+    fi
+}
+
+backup_originals() {
+    if [[ ! -f "$BACKUP_OS_RELEASE" ]]; then
+        cp "$OS_RELEASE" "$BACKUP_OS_RELEASE"
+        echo "backed up $OS_RELEASE -> $BACKUP_OS_RELEASE"
+    fi
+    if [[ -f "$LSB_RELEASE" && ! -f "$BACKUP_LSB_RELEASE" ]]; then
+        cp "$LSB_RELEASE" "$BACKUP_LSB_RELEASE"
+        echo "backed up $LSB_RELEASE -> $BACKUP_LSB_RELEASE"
+    fi
+    if [[ ! -f "$BACKUP_HOSTNAME" ]]; then
+        cp "$HOSTNAME_FILE" "$BACKUP_HOSTNAME"
+        echo "backed up $HOSTNAME_FILE -> $BACKUP_HOSTNAME"
+    fi
+}
+
+set_hostname() {
+    echo "$CISCO_HOSTNAME" > "$HOSTNAME_FILE"
+    hostnamectl set-hostname "$CISCO_HOSTNAME"
+    echo "hostname set to $CISCO_HOSTNAME"
+}
+
+set_ubuntu() {
+    backup_originals
+    cat > "$OS_RELEASE" <<'EOF'
+NAME="Ubuntu"
+VERSION="22.04.3 LTS (Jammy Jellyfish)"
+ID=ubuntu
+ID_LIKE=debian
+PRETTY_NAME="Ubuntu 22.04.3 LTS"
+VERSION_ID="22.04"
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+VERSION_CODENAME=jammy
+UBUNTU_CODENAME=jammy
+EOF
+    cat > "$LSB_RELEASE" <<'EOF'
+DISTRIB_ID=Ubuntu
+DISTRIB_RELEASE=22.04
+DISTRIB_CODENAME=jammy
+DISTRIB_DESCRIPTION="Ubuntu 22.04.3 LTS"
+EOF
+    set_hostname
+    echo "OS identity set to Ubuntu 22.04 LTS"
+    echo "reconnect Cisco AnyConnect and recheck posture"
+}
+
+set_centos10() {
+    backup_originals
+    cat > "$OS_RELEASE" <<'EOF'
+NAME="CentOS Stream"
+VERSION="10"
+ID=centos
+ID_LIKE="rhel fedora"
+VERSION_ID="10"
+PLATFORM_ID="platform:el10"
+PRETTY_NAME="CentOS Stream 10"
+ANSI_COLOR="0;31"
+LOGO=fedora-logo-icon
+CPE_NAME="cpe:/o:centos:centos:10"
+HOME_URL="https://centos.org/"
+BUG_REPORT_URL="https://issues.redhat.com/"
+REDHAT_SUPPORT_PRODUCT="Red Hat Enterprise Linux 10"
+REDHAT_SUPPORT_PRODUCT_VERSION="CentOS Stream"
+EOF
+    cat > "$LSB_RELEASE" <<'EOF'
+DISTRIB_ID=CentOS
+DISTRIB_RELEASE=10
+DISTRIB_CODENAME=Stream
+DISTRIB_DESCRIPTION="CentOS Stream 10"
+EOF
+    set_hostname
+    echo "OS identity set to CentOS Stream 10"
+    echo "reconnect Cisco AnyConnect and recheck posture"
+}
+
+set_fedora43() {
+    backup_originals
+    cat > "$OS_RELEASE" <<'EOF'
+NAME="Fedora Linux"
+VERSION="43 (Workstation Edition)"
+ID=fedora
+VERSION_ID=43
+VERSION_CODENAME=""
+PLATFORM_ID="platform:f43"
+PRETTY_NAME="Fedora Linux 43 (Workstation Edition)"
+ANSI_COLOR="0;38;2;60;110;180"
+LOGO=fedora-logo-icon
+CPE_NAME="cpe:/o:fedoraproject:fedora:43"
+DEFAULT_HOSTNAME="fedora"
+HOME_URL="https://fedoraproject.org/"
+DOCUMENTATION_URL="https://docs.fedoraproject.org/en-US/fedora/f43/system-administrators-guide/"
+SUPPORT_URL="https://ask.fedoraproject.org/"
+BUG_REPORT_URL="https://bugzilla.redhat.com/"
+REDHAT_SUPPORT_PRODUCT="Fedora"
+REDHAT_SUPPORT_PRODUCT_VERSION=43
+PRIVACY_POLICY_URL="https://fedoraproject.org/wiki/Legal:PrivacyPolicy"
+VARIANT="Workstation Edition"
+VARIANT_ID=workstation
+EOF
+    cat > "$LSB_RELEASE" <<'EOF'
+DISTRIB_ID=Fedora
+DISTRIB_RELEASE=43
+DISTRIB_CODENAME=
+DISTRIB_DESCRIPTION="Fedora Linux 43 (Workstation Edition)"
+EOF
+    set_hostname
+    echo "OS identity set to Fedora Linux 43"
+    echo "reconnect Cisco AnyConnect and recheck posture"
+}
+
+restore() {
+    if [[ ! -f "$BACKUP_OS_RELEASE" ]]; then
+        echo "no backup found at $BACKUP_OS_RELEASE — nothing to restore"
+        exit 1
+    fi
+    cp "$BACKUP_OS_RELEASE" "$OS_RELEASE"
+    echo "restored $OS_RELEASE"
+
+    if [[ -f "$BACKUP_LSB_RELEASE" ]]; then
+        cp "$BACKUP_LSB_RELEASE" "$LSB_RELEASE"
+        echo "restored $LSB_RELEASE"
+    else
+        # no original lsb-release existed, remove the one we created
+        rm -f "$LSB_RELEASE"
+        echo "removed $LSB_RELEASE (did not exist originally)"
+    fi
+
+    if [[ -f "$BACKUP_HOSTNAME" ]]; then
+        cp "$BACKUP_HOSTNAME" "$HOSTNAME_FILE"
+        hostnamectl set-hostname "$(cat "$BACKUP_HOSTNAME")"
+        echo "hostname restored to $(cat "$HOSTNAME_FILE")"
+        rm -f "$BACKUP_HOSTNAME"
+    fi
+
+    rm -f "$BACKUP_OS_RELEASE" "$BACKUP_LSB_RELEASE"
+    echo "OS identity restored to Arch Linux"
+}
+
+show_status() {
+    echo "=== current hostname ==="
+    echo "$(hostname)"
+    echo ""
+    echo "=== current /etc/os-release ==="
+    cat "$OS_RELEASE"
+    if [[ -f "$LSB_RELEASE" ]]; then
+        echo ""
+        echo "=== current /etc/lsb-release ==="
+        cat "$LSB_RELEASE"
+    fi
+    if [[ -f "$BACKUP_OS_RELEASE" ]]; then
+        echo ""
+        echo "note: a backup exists — OS identity is currently spoofed"
+    fi
+}
+
+case "$1" in
+    --set-ubuntu)   check_root; set_ubuntu ;;
+    --set-centos10) check_root; set_centos10 ;;
+    --set-fedora43) check_root; set_fedora43 ;;
+    --restore)      check_root; restore ;;
+    --status)       show_status ;;
+    *)              usage; exit 1 ;;
+esac

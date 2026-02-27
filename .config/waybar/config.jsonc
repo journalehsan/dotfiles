@@ -65,7 +65,7 @@
     }
   },
   "custom/omarchy": {
-    "format": "<span size='x-large'>󰣇</span>",
+    "format": "<span size='x-large'>󰍜</span>",
     "on-click": "omarchy-menu",
     "on-click-right": "xdg-terminal-exec",
     "tooltip-format": "Omarchy Menu\n\nSuper + Alt + Space"
@@ -210,6 +210,7 @@
       "phone": "󰏲",
       "portable": "󰏲",
       "car": "󰄋",
+      "headphone": "",
       "default": ["󰕿", "󰖀", "󰕾"]
     },
     "scroll-step": 5,
@@ -234,6 +235,19 @@
     "exec": "$OMARCHY_PATH/default/waybar/indicators/screen-recording.sh",
     "signal": 8,
     "return-type": "json"
+  },
+  "custom/voxtype": {
+    "exec": "omarchy-voxtype-status",
+    "return-type": "json",
+    "format": "{icon}",
+    "format-icons": {
+      "idle": "",
+      "recording": "󰍬",
+      "transcribing": "󰔟"
+    },
+    "tooltip": true,
+    "on-click-right": "omarchy-voxtype-config",
+    "on-click": "omarchy-voxtype-model"
   },
   "tray": {
     "icon-size": 12,

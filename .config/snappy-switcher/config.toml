@@ -1,0 +1,39 @@
+# Snappy Switcher Configuration
+# Theme: Dracula
+
+[theme]
+# Background
+background = "#282a36"
+background_border = "#6272a4"
+
+# Text
+text = "#f8f8f2"
+text_selected = "#6272a4"
+
+# Highlights
+highlight = "#bd93f9"
+highlight_border = "#bd93f9"
+
+# Window borders
+active_window_border = "#8be9fd"
+inactive_window_border = "#6272a4"
+
+[layout]
+# Number of columns in the grid
+columns = 4
+
+# Window preview height
+preview_height = 120
+
+# Spacing between items
+spacing = 10
+
+# Border width
+border_width = 3
+
+[behavior]
+# Show window titles
+show_titles = true
+
+# Show workspace numbers
+show_workspaces = true
