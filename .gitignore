@@ -9,4 +9,4 @@
 *.swp
 *.swo
 .temp/
-.tmp/
+.tmp/.config/omarchy/current/theme/backgrounds/
